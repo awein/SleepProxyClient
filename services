@@ -1,0 +1,14 @@
+# "service port TXT-Options"
+# service is given by a leading _
+
+## some dummy example
+#_dummy._tcp 9999 someOption=Value someOtherOption=0
+
+
+# some predefined services
+
+## afp
+_afpovertcp._tcp 548
+
+## SSH
+_ssh._tcp 22
