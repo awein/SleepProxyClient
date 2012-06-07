@@ -3,7 +3,7 @@
 ## About
 
 Wake on Demand (http://support.apple.com/kb/HT3774) is great.
-A unused device is able to go to sleep while keeping it's announced MDNS (Zeroconf) services alive.
+It enables an unused device to go to sleep while keeping it's announced MDNS (Zeroconf) services alive and will be woken up on access again.
 
 These scripts enables your Linux server to do save energy by going to sleep if it's unused.
 If one of it/s services will be requested it will be woken up by Wake on Lan (WOL) by the SleepProxyServer. See http://en.wikipedia.org/wiki/Bonjour_Sleep_Proxy for more details.
