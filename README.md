@@ -35,9 +35,12 @@ This little tool consist of three scripts:
  - python
  - dnspython (http://www.dnspython.org)
  - avahi-browse (to find the sleep proxy)
+ - pm-utils (pm-suspend is used to suspend the host)
  
  These dependencies can be easy installed on Debian/Ubuntu using the following command:
  <pre>apt-get install python python-dnspython avahi-utils</pre>
+ 
+ In addition it have to be possible to suspend the host by <code>pm-suspend</code> and to awake it by sending a Wake on Lan packet to it.
 
 ### Configuration
 
