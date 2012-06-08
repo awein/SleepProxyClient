@@ -73,7 +73,7 @@ Some more parameters can be adjusted to fit your needs:
 
 ## Support this project
 
-Just support this project by contributing some code, creating issues or just by flattring it - Thanks!.
+Just support this project by contributing some code, creating issues or just by flattring it - Thanks!
 
 <a href="http://flattr.com/thing/713748/aweinSleepProxyClient-on-GitHub" target="_blank">
 <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a>
