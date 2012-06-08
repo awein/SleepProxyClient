@@ -17,16 +17,16 @@ Such a server is included in many Apple devices like its network products "Time 
 
 This little tool consist of three scripts:
 
-1. spc.py
+1. spc.py   
 	This script sends the actual DNS update request to the sleep proxy server.
 	It can be easily used without the other two scripts too.
 
 
-2. spc.sh
+2. spc.sh   
 	Allows to send the update request to all available sleep proxy servers by just specifying the network interface to use as parameter.
 
 
-3. checkSleep.sh
+3. checkSleep.sh   
 	will try to check if the host is currently in use. It will suspend the host after two successfully calls. This script is designed to be periodically called by a cronjob.
 
 
@@ -62,10 +62,10 @@ This causes the checkSleep.sh to be called every 8 minutes. Since two successful
 
 Some more parameters can be adjusted to fit your needs:
 
-- TTL (Time to live)
+- TTL (Time to live)   
 	The TTL controls the life time of the MDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 24h and can be changed within <code>spc.py</code>.
 
-- Device Model
+- Device Model   
 	The device model to be announced can also be changed. (The small icon besides the servers name within the finder sidebar). It defaults to RackMac an can by changed within <code>spc.py</code> too.
 
 ## Support this project
