@@ -5,23 +5,31 @@
 Wake on Demand (http://support.apple.com/kb/HT3774) is great.
 It enables an unused device to go to sleep while keeping it's announced MDNS (Zeroconf) services alive and will be woken up on access again.
 
-These scripts enables your Linux server to do save energy by going to sleep if it's unused.
-If one of it/s services will be requested it will be woken up by Wake on Lan (WOL) by the SleepProxyServer. See http://en.wikipedia.org/wiki/Bonjour_Sleep_Proxy for more details.
+These scripts enables your Linux server to save energy by going to sleep if it's currently not in use.
+But it will be instantly woken up again by the SleepProxyServer using Wake on Lan (WOL) if one of it's services is requested. See http://en.wikipedia.org/wiki/Bonjour_Sleep_Proxy for more details.
 
 ### Requierments
-A SleepProxyServer on your network is required an will announce itself via MDNS (_sleep-proxy._udp). 
-Such a server is included in many Apple devices like its network products Time Capsule and AirPort Express. But also an Apple TV or any Mac can be turned into a sleep proxy server.
+To get this running, a SleepProxyServer on your local network is required. If present, it will announce itself via MDNS as <code>_sleep-proxy._udp</code>. 
+Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too.
+
 
 ## Setup / Install
 
 This little tool consist of three scripts:
 
 1. spc.py
+
 		This script sends the actual DNS update request to the sleep proxy server.
 		It can be easily used without the other two scripts too.
+
+
 2. spc.sh
+
 		Allows to send the update request to all available sleep proxy servers by just specifying the network interface to use as parameter.
+
+
 3. checkSleep.sh
+
 		will try to check if the host is currently in use. It will suspend the host after two successfully calls. This script is designed to be periodically called by a cronjob.
 
 
