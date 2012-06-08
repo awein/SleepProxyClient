@@ -1,4 +1,4 @@
-# A SleepProxyClient implementation (Wake on Demand)
+# A SleepProxyClient implementation
 
 ## About
 
