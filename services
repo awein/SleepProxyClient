@@ -1,8 +1,8 @@
-# "service port TXT-Options"
-# service is given by a leading _
+# syntax: "service port TXT-Options"
+# A valid service have to start with a a leading _
 
-## some dummy example
-#_dummy._tcp 9999 someOption=Value someOtherOption=0
+## some service example
+#_someService._tcp 9999 someOption=Value someOtherOption=0
 
 
 # some predefined services
