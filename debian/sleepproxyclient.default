@@ -19,17 +19,11 @@
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
 
-# syntax: "service port TXT-Options"
-# A valid service have to start with a a leading _
+# A list of interfaces to use (seperated by whitespace)
+SPC_INTERFACES="eth0"
 
-## some service example
-#_someService._tcp 9999 someOption=Value someOtherOption=0
+# set TTL to 2 h
+SPC_TTL=7200
 
-
-# some predefined services
-
-## afp
-_afpovertcp._tcp 548
-
-## SSH
-_ssh._tcp 22
+# enable debug mode
+#SPC_DEBUG=1

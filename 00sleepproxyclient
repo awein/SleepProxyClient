@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # This file is part of SleepProxyClient.
 #
@@ -19,17 +20,44 @@
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
 
-# syntax: "service port TXT-Options"
-# A valid service have to start with a a leading _
+## INSTALL:
+## move or link to:
+##		/etc/pm/sleep.d/00sleepproxyclient
+## script has to be executable (chmod +x)
 
-## some service example
-#_someService._tcp 9999 someOption=Value someOtherOption=0
+## This script calls sleepproxyclient.sh
+## for all configured interfaces on suspend or hibernate
+
+# get defaults
+. /etc/default/sleepproxyclient
+
+TAG="SPC_SLEEP"
+SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
+
+case $1 in
+suspend)
+## RUN BEFORE SUSPEND
+hibernate)
+## RUN BEFORE HIBERNATE
+	
+	logger -t $TAG "running SPC"
+	for IFACE in $SPC_INTERFACES
+	do
+		bash $SCRIPTDIR/sleepProxyClient.sh $IFACE $SPC_TTL
+	done
+	logger -t $TAG "done: $SPC_INTERFACES"
+
+;;
+thaw)
+## AFTER RESUME FROM SUSPEND TO DISK
+resume)
+## RUN AFTER RESUME
+
+	if [ $SPC_DEBUG != "" ] ; then
+		logger -t $TAG "awake!"
+	fi
+
+;;
+esac
 
 
-# some predefined services
-
-## afp
-_afpovertcp._tcp 548
-
-## SSH
-_ssh._tcp 22

@@ -1,0 +1,20 @@
+Source: sleepproxyclient
+Section: unknown
+Priority: optional
+Maintainer: Andreas Weinlein <andreas.dev@weinlein.info>
+Uploaders: Andreas Weinlein <andreas.dev@weinlein.info>
+Build-Depends: debhelper (>= 7.0.50~), python (>= 2.4)
+Homepage: https://github.com/awein/SleepProxyClient
+Standards-Version: 3.9.3
+
+Package: sleepproxyclient
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}, python-dnspython, avahi-utils, pm-utils
+Description: mDNS Sleep Proxy Client implementation.
+ sleepproxyclient is a Linux implementation for Wake On Demand by using
+ a Sleep Proxy Server.
+ Specified services will be registered by the Sleep Proxy Server before
+ going to sleep or hibernation. The client will be woken up by the server
+ on accessing on of this services.
+ An mDNS announced Sleep Proxy Server (_sleep-proxy._udp) is required on
+ the local network to work properly.
