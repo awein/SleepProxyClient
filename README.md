@@ -30,7 +30,7 @@ Such a server is included in many Apple devices like its network products "Time 
 ### Install
 
 On Debian/Ubuntu just install the deb-package by <pre>dpkg -i sleepproxyclient.deb</pre>
-(https://github.com/awein/SleepProxyClient/blob/master/sleepproxyclient.deb)
+(https://raw.github.com/awein/SleepProxyClient/master/sleepproxyclient.deb)
 
 ### Configuration
 
