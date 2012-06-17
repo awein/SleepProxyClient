@@ -1,3 +1,4 @@
 sleepproxyclient* usr/share/sleepproxyclient/scripts
+checkSleep.sh usr/share/sleepproxyclient/scripts
 00sleepproxyclient etc/pm/sleep.d
 services etc/sleepproxyclient

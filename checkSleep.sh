@@ -29,7 +29,6 @@ SCRIPT_DIR=$(dirname $0)
 # run SleepProxyClient
 function doSleep {
 	logger "checkSleep: initiating sleep"
-	bash $SCRIPT_DIR/spc.sh "$IFACE"
 	pm-suspend
 	logger "checkSleep: awake!"
 }
@@ -56,6 +55,12 @@ function doCheck {
 		RESULT=1
 	fi
 
+	#check for heavy processing/cpu load,
+	LOAD5MINAVG=`cat /proc/loadavg  | cut -d " " -f 2`
+	if [ `echo "$LOAD5MINAVG > 1" | bc` -gt 0 ]
+	then
+		RESULT=1
+	fi
 	return $RESULT
 }
 
