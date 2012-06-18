@@ -52,7 +52,7 @@ This job causes the checkSleep.sh to be called every 8 minutes. Since two succes
 Some more parameters can be adjusted to fit your needs:
 
 - List of network interfaces
-  The list of interfaces to use contains only <code>eth0</code> by default.
+	The list of interfaces to use contains only <code>eth0</code> by default.
 
 - TTL (Time to live)   
 	The TTL controls the life time of the MDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 2 hours.
