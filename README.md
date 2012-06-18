@@ -23,7 +23,7 @@ Such a server is included in many Apple devices like its network products "Time 
  - pm-utils (pm-suspend has to be used to suspend the host to trigger these scripts)
  
  These dependencies can be easy installed on Debian/Ubuntu using the following command:
- <pre>apt-get install python python-dnspython avahi-utils pm-utils</pre>
+ <pre>apt-get install python python-dnspython python-argparse python-netifaces avahi-utils pm-utils</pre>
  
 In addition it has to be possible to wake the host via Wake on LAN from sleep.
  
