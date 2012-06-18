@@ -1,3 +1,9 @@
+sleepproxyclient (0.2) unstable; urgency=low
+
+  * Added service descovery and removed the services configuration file.
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Mon, 18 Jun 2012 11:10:13 +0200
+
 sleepproxyclient (0.1) unstable; urgency=low
 
   * Initial release.
