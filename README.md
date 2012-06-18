@@ -34,25 +34,25 @@ On Debian/Ubuntu just install the deb-package by <pre>dpkg -i sleepproxyclient.d
 
 ### Configuration
 
-#### Announced services
+#### Services
 
-All locally announced services will be discovered via avahi-browse. There is no manual configuration required.
+All locally announced services will be discovered via avahi-browse. There is no manual configuration needed anymore.
 
 #### Setup auto-sleep
 
-Create your own script or use the included <code>checkSleep.sh</code> script.
+Create your own or use the included <code>checkSleep.sh</code> script.
 The checkSleep script needs to be called periodically to be able to suspend the host by it's own.
 This can be done by creating a cronjob via crontab:
 <pre>*/8 * * * * /bin/bash /usr/share/sleepproxyclient/scripts/checkSleep.sh</pre>
 
-This causes the checkSleep.sh to be called every 8 minutes. Since two successfully calls are required to suspend the host the time until the last activity and actually suspending will be at least 16 minutes.
+This job causes the checkSleep.sh to be called every 8 minutes. Since two successfully calls are required to suspend the host it will take at least 16 minutes until the suspend is done.
 
 #### Tuning some parameters
 
 Some more parameters can be adjusted to fit your needs:
 
 - List of network interfaces
-	The list of interfaces to use contains only eth0 by default.
+  The list of interfaces to use contains only <code>eth0</code> by default.
 
 - TTL (Time to live)   
 	The TTL controls the life time of the MDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 2 hours.
