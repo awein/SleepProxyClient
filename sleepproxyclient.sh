@@ -24,54 +24,31 @@
 # sleepproxycclient.sh - SleepProxyClient
 #
 # Send DNS Update-request to all discovered SleepProxys
-# service definitions are read from the services file
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-export LANG=en_US.utf8
 
-if [ $# -lt 1 ]
+# get defaults
+. /etc/default/sleepproxyclient
+
+
+IF_OPT=""
+if [ "$SPC_INTERFACES" != "" ]
 then
-	echo "usage: $0 iface [TTL]"
-	echo " - iface: A network interface with valid Hardware and IPv4 address."
-	exit 1
+	IF_OPT="--interfaces $SPC_INTERFACES"
 fi
-
-IFACE=$1
 
 TTL_OPT=""
-if [ $# -ge 2 ]
+if [ "$SPC_TTL" != "" ]
 then
-	TTL_OPT="-TTL=$2"
+	TTL_OPT="--ttl $SPC_TTL"
 fi
 
-
-ifconfig "$IFACE" >/dev/null
-if [ $? -ne 0 ]
+DEV_OPT=""
+if [ "$SPC_DEVICE_MODEL" != "" ]
 then
-	echo "Invalid interface specified: $IFACE"
-	exit 1
+	DEV_OPT="--device-model $SPC_DEVICE_MODEL"
 fi
 
 SCRIPTDIR=`dirname $0`
-#CONFIGDIR=`dirname $0`
-CONFIGDIR="/etc/sleepproxyclient"
-
-MAC_ADDR=`ifconfig $IFACE | awk '/HWaddr/ { print $5 }'`
-IP_ADDR=`ifconfig $IFACE | awk '/inet addr:/ { print $2 }' | cut -d : -f2`
-
-HOSTNAME=`hostname`
-
-PROXY_LIST=`avahi-browse-domains -atprd "local" 2>/dev/null | grep "^=.*_sleep-proxy._udp" | cut -d ';' -s -f7-9  | uniq`
-
-while read line
-do
-	ARR=(${line//;/ })
-	HOST="${ARR[0]}"
-	IP="${ARR[1]}"
-	PORT="${ARR[2]}"
-	
-#	logger "SPC: -SPS_IP \"$IP\" -SPS_Port \"$PORT\" -SPC_MAC \"$MAC_ADDR\" -SPC_Hostname \"$HOSTNAME\" -SPC_IP \"$IP_ADDR\" $TTL_OPT"
-	python $SCRIPTDIR/sleepproxyclient.py -SPS_IP "$IP" -SPS_Port "$PORT" -SPC_MAC "$MAC_ADDR" -SPC_Hostname "$HOSTNAME" -SPC_IP "$IP_ADDR" -SPC_Services "$CONFIGDIR/services" $TTL_OPT
-
-done <<< "$PROXY_LIST"
+python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT

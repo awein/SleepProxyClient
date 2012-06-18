@@ -19,8 +19,9 @@
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
 
-# A list of interfaces to use (seperated by whitespace)
-SPC_INTERFACES="eth0"
+# A list of interfaces to use (seperated by ',')
+# To use all interfaces use 'all' or leave the variable unset
+#SPC_INTERFACES="eth0"
 
 # set TTL to 2 h
 SPC_TTL=7200

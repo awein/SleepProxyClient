@@ -28,22 +28,18 @@
 ## This script calls sleepproxyclient.sh
 ## for all configured interfaces on suspend or hibernate
 
-# get defaults
-. /etc/default/sleepproxyclient
 
-TAG="SPC_SLEEP"
+TAG="sleepproxyclient"
 SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
 
 case $1 in
 suspend|hibernate)
 ## RUN BEFORE SUSPEND OR HIBERNATE
+	service avahi-daemon restart
 	
 	logger -t $TAG "running SPC"
-	for IFACE in $SPC_INTERFACES
-	do
-		bash $SCRIPTDIR/sleepproxyclient.sh $IFACE $SPC_TTL
-	done
-	logger -t $TAG "done: $SPC_INTERFACES"
+	bash $SCRIPTDIR/sleepproxyclient.sh
+	logger -t $TAG "done: $?"
 
 ;;
 thaw|resume)
@@ -53,6 +49,8 @@ thaw|resume)
 	if [ "$SPC_DEBUG" != "" ] ; then
 		logger -t $TAG "awake!"
 	fi
+	
+	service avahi-daemon restart
 
 ;;
 esac

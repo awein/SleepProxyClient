@@ -52,10 +52,10 @@ This job causes the checkSleep.sh to be called every 8 minutes. Since two succes
 Some more parameters can be adjusted to fit your needs:
 
 - List of network interfaces    
-	The list of interfaces to use contains only <code>eth0</code> by default.
+	By default all interfaces are used. This can be changed by enabling this option.
 
 - TTL (Time to live)   
-	The TTL controls the life time of the MDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 2 hours.
+	The TTL controls the life time of the mDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 2 hours.
 
 - Device Model   
 	The device model to be announced can also be changed. (The small icon besides the servers name within the finder sidebar). It defaults to "RackMac".
@@ -64,19 +64,12 @@ These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 	
 ### The scripts
 
-This little tool consist of four scripts:
+How it works:
 
-1. sleepproxyclient.py   
-	This script sends the actual DNS update request to the sleep proxy server.
-	It can be easily used without the other two scripts too.
+- 00sleepproxyclient
+	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep. This script will call sleepproxyclient.sh and is actually calling the sleepproxyclient scripts.
 
-2. sleepproxyclient.sh   
-	Allows to send the update request to all available sleep proxy servers by just specifying the network interface to use as parameter.
-
-3. 00sleepproxyclient.sh
-	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep.
-
-4. checkSleep.sh   
+- checkSleep.sh   
  Is an example script to show how to actually suspend the host. It does some checks to determine if the host is currently in use or not. It will suspend the host after two successfully calls by <code>pm-suspend</code>. This script is designed to be periodically called by a cronjob.
 	To be able to do some more advanced checks take a look at other projects like https://github.com/OMV-Plugins/autoshutdown/. Just configure them to call <code>pm-suspend</code> instead of <code>shutdown</code> to activate your SleepProxyClient.
 
