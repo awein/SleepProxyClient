@@ -62,9 +62,7 @@ Some more parameters can be adjusted to fit your needs:
 
 These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 	
-### The scripts
-
-How it works:
+### What's inside
 
 - 00sleepproxyclient
 	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep. This script will call sleepproxyclient.sh and is actually calling the sleepproxyclient scripts.
