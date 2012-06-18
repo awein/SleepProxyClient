@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # This file is part of SleepProxyClient.
 #
@@ -19,42 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
+set -e
 
-## INSTALL:
-## move or link to:
-##		/etc/pm/sleep.d/00sleepproxyclient
-## script has to be executable (chmod +x)
+case "$1" in
+	purge|remove)
+		rm /etc/pm/sleep.d/00sleepproxyclient
+	;;
 
-## This script calls sleepproxyclient.sh
-## for all configured interfaces on suspend or hibernate
+	upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+	;;
 
-# get defaults
-. /etc/default/sleepproxyclient
-
-TAG="SPC_SLEEP"
-SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
-
-case $1 in
-suspend|hibernate)
-## RUN BEFORE SUSPEND OR HIBERNATE
-	
-	logger -t $TAG "running SPC"
-	for IFACE in $SPC_INTERFACES
-	do
-		bash $SCRIPTDIR/sleepproxyclient.sh $IFACE $SPC_TTL
-	done
-	logger -t $TAG "done: $SPC_INTERFACES"
-
-;;
-thaw|resume)
-## RUN AFTER RESUME AND
-## AFTER RESUME FROM SUSPEND TO DISK
-
-	if [ "$SPC_DEBUG" != "" ] ; then
-		logger -t $TAG "awake!"
-	fi
-
-;;
+	*)
+		echo "postrm called with unknown argument '$1'" >&2
+		exit 1
+	;;
 esac
 
-
+exit 0

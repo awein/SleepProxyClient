@@ -25,7 +25,7 @@ case "$1" in
 	configure)
 		# fix executables
 		chmod +x /usr/share/sleepproxyclient/scripts/*
-		chmod +x /etc/pm/sleep.d/00sleepproxyclient
+		ln -s /usr/share/sleepproxyclient/scripts/00sleepproxyclient /etc/pm/sleep.d/00sleepproxyclient
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)

@@ -21,7 +21,7 @@
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #
-# spc.sh - SleepProxyClient
+# sleepproxycclient.sh - SleepProxyClient
 #
 # Send DNS Update-request to all discovered SleepProxys
 # service definitions are read from the services file
@@ -72,6 +72,6 @@ do
 	PORT="${ARR[2]}"
 	
 #	logger "SPC: -SPS_IP \"$IP\" -SPS_Port \"$PORT\" -SPC_MAC \"$MAC_ADDR\" -SPC_Hostname \"$HOSTNAME\" -SPC_IP \"$IP_ADDR\" $TTL_OPT"
-	python $SCRIPTDIR/spc.py -SPS_IP "$IP" -SPS_Port "$PORT" -SPC_MAC "$MAC_ADDR" -SPC_Hostname "$HOSTNAME" -SPC_IP "$IP_ADDR" -SPC_Services "$CONFIGDIR/services" $TTL_OPT
+	python $SCRIPTDIR/sleepproxyclient.py -SPS_IP "$IP" -SPS_Port "$PORT" -SPC_MAC "$MAC_ADDR" -SPC_Hostname "$HOSTNAME" -SPC_IP "$IP_ADDR" -SPC_Services "$CONFIGDIR/services" $TTL_OPT
 
 done <<< "$PROXY_LIST"
