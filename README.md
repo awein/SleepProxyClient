@@ -51,7 +51,7 @@ This job causes the checkSleep.sh to be called every 8 minutes. Since two succes
 
 Some more parameters can be adjusted to fit your needs:
 
-- List of network interfaces
+- List of network interfaces 
 	The list of interfaces to use contains only <code>eth0</code> by default.
 
 - TTL (Time to live)   
