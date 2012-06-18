@@ -28,6 +28,7 @@ import struct
 
 import argparse
 import sys
+import subprocess
 
 #
 #	A Python Wake On Demand client implementation (SleepProxyClient)
@@ -52,14 +53,15 @@ def main():
 	args = readArgs()
 	
 	#prepare IP and a reversed IP
-	ip_arr = args.SPC_IP.rsplit(".")
-	if (len(ip_arr) != 4) :
+	ipArr = args.SPC_IP.rsplit(".")
+	if (len(ipArr) != 4) :
 		print "Invalid SPC_IP - exiting"
 		sys.exit(1)
 	
-	ip_inv= ip_arr[3] + "." + ip_arr[2] + "." + ip_arr[1] + "." + ip_arr[0]
-	
-	
+	ipArr.reverse()
+	ipInv = ".".join(ipArr)
+	ipArr.reverse()
+		
 	host_local = args.SPC_Hostname + ".local"
 	host = args.SPC_Hostname
 	
@@ -68,11 +70,11 @@ def main():
 	update = dns.update.Update("")
 	
 	# add some host stuff
-	update.add(ip_inv + '.in-addr.arpa', TTL_short, dns.rdatatype.PTR, host_local)
+	update.add(ipInv + '.in-addr.arpa', TTL_short, dns.rdatatype.PTR, host_local)
 	update.add(host_local, TTL_short, dns.rdatatype.A,  args.SPC_IP)
 	
 	#	add services	
-	for service in readServices(args.SPC_Services) :
+	for service in discoverServices(args.SPC_IP) :
 		type = service[0] + ".local"
 		type_host = host + "." + type
 		port = service[1]
@@ -113,36 +115,39 @@ def main():
 	# 3: payload size
 	update.use_edns(0, args.TTL, 1440, None, [leaseTimeOption, ownerOption])
 	
-
-
 	# send request
 	response = dns.query.udp(update, args.SPS_IP, timeout=10, port=args.SPS_Port)
 	
 	
-
-
-
-def readServices(filepath):
-		# Read services to announce from file.
-
- 	SERVICES = []
-
-	file = open(filepath, 'r')
 	
-	for line in file :
-	  # check if the line contains a service definition
-		if not line.startswith("_"):
-			continue
-	  
-		line = line.strip()
-		SERVICE_ARR = line.rsplit(" ")
-		if len(SERVICE_ARR) < 2 :
-			print "Invalid service definition: " + line
-		else:
-			SERVICES.append(SERVICE_ARR)					
 	
-	file.close()
-	return SERVICES
+	
+
+def discoverServices(ip):
+# discover all currently announced local services
+
+	services = []
+	cmd = "avahi-browse --all --resolve --parsable --no-db-lookup --terminate 2>/dev/null | grep ';IPv4;' | grep ';" + ip + ";'"
+	
+	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	for line in p.stdout.readlines():
+	    lineArr = line.rsplit(";")
+
+			# check length
+	    if (len(lineArr) < 10) :
+	    	p.terminate()
+	    	break
+	    	
+	    #extract service details
+	    if (lineArr[7] == ip) :
+	    	service = lineArr[4]
+	    	port = lineArr[8]
+	    	txtRecords = lineArr[9].replace('" "', ';').replace('\n', '').replace('"', '').rsplit(';')
+	    	services.append([service, port] + txtRecords)
+
+	retval = p.wait()
+	return services
+
 
 
 
@@ -159,9 +164,7 @@ def readArgs():
                    help='The IP-Address of the client')
 	parser.add_argument('-SPC_Hostname', action='store', required=True,
                    help='The clients hostname')
-	parser.add_argument('-SPC_Services', action='store', required=True,
-                   help='The clients services as filepath')
-                   
+
 #optional args
 	parser.add_argument('-TTL', action='store', type=int, help='TTL for the update in seconds. Client will be woken up after this period.', default=TTL_long)
 	parser.add_argument('-DEVICE_MODEL', action='store', help='The device-model to send (_device-info._tcp.local).', default=DEVICE_MODEL)

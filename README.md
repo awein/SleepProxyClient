@@ -19,14 +19,14 @@ Such a server is included in many Apple devices like its network products "Time 
 
  - python
  - dnspython (http://www.dnspython.org)
- - avahi-browse (to find the sleep proxy)
- - pm-utils (pm-suspend is used to suspend the host)
+ - avahi-browse (to discover the sleep proxy and local services)
+ - pm-utils (pm-suspend has to be used to suspend the host to trigger these scripts)
  
  These dependencies can be easy installed on Debian/Ubuntu using the following command:
  <pre>apt-get install python python-dnspython avahi-utils pm-utils</pre>
  
- In addition it have to be possible to suspend the host by <code>pm-suspend</code> and to awake it by sending a Wake on LAN packet to it.
-
+In addition it has to be possible to wake the host via Wake on LAN from sleep.
+ 
 ### Install
 
 On Debian/Ubuntu just install the deb-package by <pre>dpkg -i sleepproxyclient.deb</pre>
@@ -34,14 +34,9 @@ On Debian/Ubuntu just install the deb-package by <pre>dpkg -i sleepproxyclient.d
 
 ### Configuration
 
-#### Custom services
+#### Announced services
 
-Up to now there is no service discovery to find the services to keep alive by itself.
-This requires to specify the services to be announced by the sleep proxy server by hand.
-This can be done via the services file (<code>/etc/sleepproxyclient/services</code>).
-By default the services file contains already two services: ssh and afp.
-Custom services can be added easily by specifying at least the service and the corresponding port.
-In most cases it's totally sufficient to just specify the service type and port without further txt information.
+All locally announced services will be discovered via avahi-browse. There is no manual configuration required.
 
 #### Setup auto-sleep
 
@@ -55,6 +50,9 @@ This causes the checkSleep.sh to be called every 8 minutes. Since two successful
 #### Tuning some parameters
 
 Some more parameters can be adjusted to fit your needs:
+
+- List of network interfaces
+	The list of interfaces to use contains only eth0 by default.
 
 - TTL (Time to live)   
 	The TTL controls the life time of the MDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 2 hours.
@@ -76,7 +74,7 @@ This little tool consist of four scripts:
 	Allows to send the update request to all available sleep proxy servers by just specifying the network interface to use as parameter.
 
 3. 00sleepproxyclient.sh
-	This hook has to be installed to <code>/etc/pm/sleep.d/</code>. It will be called by pm-utils before going to sleep.
+	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep.
 
 4. checkSleep.sh   
 	will try to check if the host is currently in use. It will suspend the host after two successfully calls by <code>pm-suspend</code>. This script is designed to be periodically called by a cronjob.
