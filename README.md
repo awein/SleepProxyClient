@@ -77,8 +77,8 @@ This little tool consist of four scripts:
 	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep.
 
 4. checkSleep.sh   
-	will try to check if the host is currently in use. It will suspend the host after two successfully calls by <code>pm-suspend</code>. This script is designed to be periodically called by a cronjob.
-	To do more advanced checks other projects like https://github.com/OMV-Plugins/autoshutdown/ can easily be used. Just configure them to call <code>pm-suspend</code> instead of <code>shutdown</code>.
+ Is an example script to show how to actually suspend the host. It does some checks to determine if the host is currently in use or not. It will suspend the host after two successfully calls by <code>pm-suspend</code>. This script is designed to be periodically called by a cronjob.
+	To be able to do some more advanced checks take a look at other projects like https://github.com/OMV-Plugins/autoshutdown/. Just configure them to call <code>pm-suspend</code> instead of <code>shutdown</code> to activate your SleepProxyClient.
 
 
 ## Support this project
