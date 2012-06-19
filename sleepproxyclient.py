@@ -130,7 +130,7 @@ def sendUpdateForInterface(interface) :
 	
 	
 	# add device info
-	update.add(host + '._device-info._tcp.local.', TTL_long, dns.rdatatype.TXT, "model=" + DEVICE_MODEL + "state=sleeping")
+	update.add(host + '._device-info._tcp.local.', TTL_long, dns.rdatatype.TXT, "model=" + DEVICE_MODEL + " state=sleeping")
 	
 	
 	#	add edns options
