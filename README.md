@@ -15,7 +15,7 @@ Such a server is included in many Apple devices like its network products "Time 
 ### Status
 The latest relase of SleepProxyClient is 0.4.
 
-The implementation should be feature complete and works great within the tested environments. Please report issues to make it even more stable to use.
+Please report issues to make it even more stable to use.
 
 
 ## Setup / Install
