@@ -24,13 +24,12 @@ set -e
 case "$1" in
 	configure)
 		# remove the old file if present
-		test -f /etc/pm/sleep.d/00sleepproxyclient && rm /etc/pm/sleep.d/00sleepproxyclient
-		test -f /etc/pm/sleep.d/00_sleepproxyclient && rm /etc/pm/sleep.d/00_sleepproxyclient
+		test -e /etc/pm/sleep.d/00sleepproxyclient && rm /etc/pm/sleep.d/00sleepproxyclient
+		test -e /etc/pm/sleep.d/00_sleepproxyclient && rm /etc/pm/sleep.d/00_sleepproxyclient
 
 		# fix executables
 		chmod +x /usr/share/sleepproxyclient/scripts/*
 		ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /etc/pm/sleep.d/00_sleepproxyclient
-				
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)
