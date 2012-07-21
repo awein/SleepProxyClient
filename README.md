@@ -12,6 +12,11 @@ But it will be instantly woken up again by the SleepProxyServer using Wake on La
 To get this running, a SleepProxyServer on your local network is required. If present, it will announce itself via MDNS as <code>_sleep-proxy._udp</code>. 
 Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too.
 
+### Status
+The latest relase of SleepProxyClient is 0.4.
+
+The implementation should be feature complete and works great within the tested environments. Please report issues to make it even more stable to use.
+
 
 ## Setup / Install
 
@@ -23,7 +28,7 @@ Such a server is included in many Apple devices like its network products "Time 
  - pm-utils (pm-suspend has to be used to suspend the host to trigger these scripts)
  
  These dependencies can be easy installed on Debian/Ubuntu using the following command:
- <pre>apt-get install python python-dnspython python-argparse python-netifaces python-support avahi-utils pm-utils</pre>
+ <pre>apt-get install python python-dnspython python-argparse python-netifaces python-ipy python-support avahi-utils pm-utils</pre>
  
 In addition it has to be possible to wake the host via Wake on LAN from sleep.
  
@@ -64,7 +69,7 @@ These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 	
 ### What's inside
 
-- 00sleepproxyclient
+- 00_sleepproxyclient
 	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep. This script will call sleepproxyclient.sh and is actually calling the sleepproxyclient scripts.
 
 - checkSleep.sh   
