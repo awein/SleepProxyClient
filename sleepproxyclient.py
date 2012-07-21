@@ -26,11 +26,12 @@ import dns.edns
 import dns.rrset
 from dns.exception import DNSException
 
+from IPy import IP
+import netifaces
 import argparse
 import struct
 import sys
 import subprocess
-import netifaces
 import socket
 
 #
@@ -68,11 +69,7 @@ def main() :
 		if iface not in sysIfaces :
 			print "Invalid interface specified: " + iface 
 		elif "lo" not in iface:
-			try:
-#			print iface
-				sendUpdateForInterface(iface)
-			except: # catch *all* exceptions
-				print "Unexpected error: ", sys.exc_info()
+			sendUpdateForInterface(iface)
 	
 	
 def sendUpdateForInterface(interface) :
@@ -83,20 +80,25 @@ def sendUpdateForInterface(interface) :
 		print "No sleep proxy available for interface: " + interface
 		return
 	
-	addrs = netifaces.ifaddresses(interface)
+	ifaddrs = netifaces.ifaddresses(interface)
 
-	ip4Addr = addrs[netifaces.AF_INET][0]['addr']
+	ipArr = []
+	if (netifaces.AF_INET in ifaddrs) :
+		for ipEntry in ifaddrs[netifaces.AF_INET] :
+			ipArr.append(ipEntry['addr'])
+				
+	if (netifaces.AF_INET6 in ifaddrs) :
+		for ipEntry in ifaddrs[netifaces.AF_INET6] :
+			ipArr.append(ipEntry['addr'].split('%')[0]) # fix trailing %<iface>
+	if (len(proxies) == 0) :
+		print "No IPv4 or IPv6 Addresses found for interface: " + interface
+		return	
+	
+	#get HW Addr
 	if ":" in interface : # handle virtual interfaces
 		hwAddr = netifaces.ifaddresses(interface.rsplit(':')[0])[netifaces.AF_LINK][0]['addr']
 	else:
-		hwAddr = addrs[netifaces.AF_LINK][0]['addr']
-
-	#prepare IP and a reversed IP
-	ip4Arr = ip4Addr.rsplit(".")
-	ip4ArrInv = ip4Arr[:]
-	ip4ArrInv.reverse()
-	ip4Inv = ".".join(ip4ArrInv)
-
+		hwAddr = ifaddrs[netifaces.AF_LINK][0]['addr']
 	
 		
 	host = socket.gethostname() 
@@ -106,11 +108,24 @@ def sendUpdateForInterface(interface) :
 	update = dns.update.Update("")
 	
 	# add some host stuff
-	update.add(ip4Inv + '.in-addr.arpa', TTL_short, dns.rdatatype.PTR, host_local)
-	update.add(host_local, TTL_short, dns.rdatatype.A,  ip4Addr)
+	for currIP in ipArr :
+		
+		ipAddr = IP(currIP)
+		ipVersion = ipAddr.version()
+		
+		if ipVersion == 4 :
+			dnsDatatype = dns.rdatatype.A
+		elif ipVersion == 6 :
+			dnsDatatype = dns.rdatatype.AAAA
+		else :
+			continue			
+		
+		update.add(ipAddr.reverseName(), TTL_short, dns.rdatatype.PTR, host_local)
+		update.add(host_local, TTL_short, dnsDatatype,  currIP)
+	
 	
 	#	add services	
-	for service in discoverServices(ip4Addr) :
+	for service in discoverServices(ipArr) :
 		type = service[0] + ".local"
 		type_host = host + "." + type
 		port = service[1]
@@ -153,11 +168,11 @@ def sendUpdateForInterface(interface) :
 	
 	
 	# send request to all proxies
-	for proxy in proxies :
+	for name, proxydata in proxies.iteritems() :
 		try:
-			errStr = "Unable to register with SleepProxy " + proxy['ip'] + ":" + proxy['port']
+			errStr = "Unable to register with SleepProxy " + name + "(" + proxydata['ip'] + ":" + proxydata['port'] + ")"
 
-			response = dns.query.udp(update, proxy['ip'], timeout=10, port=int(proxy['port']))
+			response = dns.query.udp(update, proxydata['ip'], timeout=10, port=int(proxydata['port']))
 			#print response
 
 			rcode = response.rcode()
@@ -171,27 +186,30 @@ def sendUpdateForInterface(interface) :
 
 
 
-def discoverServices(ip):
-# discover all currently announced local services
+def discoverServices(ipArray):
+# discover all currently announced services from given IPs
 
 	services = []
-	cmd = "avahi-browse --all --resolve --parsable --no-db-lookup --terminate 2>/dev/null | grep '=;.*;IPv4;' | grep ';" + ip + ";'"
+	cmd = "avahi-browse --all --resolve --parsable --no-db-lookup --terminate 2>/dev/null | grep '^=;'"
 	
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	for line in p.stdout.readlines():
-	    lineArr = line.rsplit(";")
+		lineArr = line.rsplit(";")
 
-			# check length
-	    if (len(lineArr) < 10) :
-	    	p.terminate()
-	    	break
-	    	
-	    #extract service details
-	    if (lineArr[7] == ip) :
-	    	service = lineArr[4]
-	    	port = lineArr[8]
-	    	txtRecords = lineArr[9].replace('" "', ';').replace('\n', '').replace('"', '').rsplit(';')
-	    	services.append([service, port] + txtRecords)
+		# check length
+		if (len(lineArr) < 10) :
+			p.terminate()
+			print "discovering services failed for: " + str(ipArray)
+			break
+
+			#extract service details
+			if (lineArr[7] in ipArray) :
+				service = lineArr[4]
+				port = lineArr[8]
+				txtRecords = lineArr[9].replace('" "', ';').replace('\n', '').replace('"', '').rsplit(';')
+				serviceEntry = [service, port] + txtRecords
+				if (serviceEntry not in services): # check for duplicates due to IPv4/6 dual stack
+					services.append(serviceEntry)
 
 	retval = p.wait()
 	return services
@@ -201,9 +219,9 @@ def discoverServices(ip):
 def discoverSleepProxies(interface):
 # discover all available Sleep Proxy Servers
 
-	proxies = []
-#	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '=;" + interface + ";IPv4;'" # causes truoble for eth0:1 interfaces
-	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '=;.*;IPv4;'"
+	proxies = {}
+	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '^=;'"
+	
 	
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	for line in p.stdout.readlines():
@@ -214,9 +232,12 @@ def discoverSleepProxies(interface):
 				p.terminate()
 				break
 
+			name = lineArr[6]
 			ip = lineArr[7]
 			port = lineArr[8]
-			proxies.append({ "ip" : ip, "port" : port})
+			
+			if name not in proxies :
+				proxies[name] = { "ip" : ip, "port" : port}
 
 	retval = p.wait()
 	return proxies

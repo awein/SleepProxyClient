@@ -1,3 +1,10 @@
+sleepproxyclient (0.4) unstable; urgency=low
+
+  * Added full IPv6-Support. Fixes #1
+  * some minor fixes
+  
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 21 Jul 2012 16:00:00 +0200
+ 
 sleepproxyclient (0.3) unstable; urgency=low
 
   * Big cleanup and rework for all scripts.
