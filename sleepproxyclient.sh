@@ -50,5 +50,14 @@ then
 	DEV_OPT="--device-model $SPC_DEVICE_MODEL"
 fi
 
+DEBUG_OPT=""
+if [ "$SPC_DEBUG" != "" ] ; then
+	DEBUG_OPT="--debug"
+fi
+
 SCRIPTDIR=`dirname $0`
-python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT
+
+if [ "$SPC_DEBUG" != "" ] ; then
+	echo "calling: python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT $DEV_OPT $DEBUG_OPT"
+fi
+python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT $DEV_OPT $DEBUG_OPT

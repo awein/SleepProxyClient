@@ -52,11 +52,12 @@ TTL_long = 7200 # 2 h
 # should NOT be changed
 TTL_short = 120
 
+# debug flag
+DEBUG = False
 
 def main() :
 	
 	args = readArgs()
-	
 	
 	# check interfaces 
 	sysIfaces = netifaces.interfaces()
@@ -65,6 +66,10 @@ def main() :
 	if args.interfaces == "all" :
 		interfaces = sysIfaces
 	
+	if (DEBUG) :
+		print "Interfaces: " + ", ".join(interfaces)
+	
+	
 	for iface in interfaces : 
 		if iface not in sysIfaces :
 			print "Invalid interface specified: " + iface 
@@ -72,7 +77,11 @@ def main() :
 			sendUpdateForInterface(iface)
 	
 	
+
 def sendUpdateForInterface(interface) :
+# send update request per interface
+	if (DEBUG) :
+		print "-sendUpdateForInterface: " + interface
 
 	## get all available sleep proxies
 	proxies = discoverSleepProxies(interface)
@@ -94,15 +103,24 @@ def sendUpdateForInterface(interface) :
 		print "No IPv4 or IPv6 Addresses found for interface: " + interface
 		return	
 	
+	if (DEBUG) :
+		print "-sendUpdateForInterface: IPs: " + ", ".join(ipArr)
+		
+	
 	#get HW Addr
 	if ":" in interface : # handle virtual interfaces
 		hwAddr = netifaces.ifaddresses(interface.rsplit(':')[0])[netifaces.AF_LINK][0]['addr']
 	else:
 		hwAddr = ifaddrs[netifaces.AF_LINK][0]['addr']
 	
+	if (DEBUG) :
+		print "-sendUpdateForInterface: HW-Addr: " + hwAddr
 		
 	host = socket.gethostname() 
 	host_local = host + ".local"
+		
+	if (DEBUG) :
+		print "-sendUpdateForInterface: Host: " + host_local
 		
 	#	create update request
 	update = dns.update.Update("")
@@ -170,24 +188,29 @@ def sendUpdateForInterface(interface) :
 	# send request to all proxies
 	for name, proxydata in proxies.iteritems() :
 		try:
-			errStr = "Unable to register with SleepProxy " + name + "(" + proxydata['ip'] + ":" + proxydata['port'] + ")"
+			if (DEBUG) :
+							print "-sendUpdateForInterface: sending update to " + proxydata['ip']
 
 			response = dns.query.udp(update, proxydata['ip'], timeout=10, port=int(proxydata['port']))
-			#print response
+
+			if (DEBUG) :
+							print "-sendUpdateForInterface: response: ", response
 
 			rcode = response.rcode()
 			if rcode != dns.rcode.NOERROR:
-				print errStr
+				print "Unable to register with SleepProxy " + name + " (" + proxydata['ip'] + ":" + proxydata['port'] + ") - Errcode: " + rcode
 				print response
 			
 		except DNSException, e:
-			print errStr
-			print e
+			print "Unable to register with SleepProxy " + name + " (" + proxydata['ip'] + ":" + proxydata['port'] + ")"
+			print e.__class__, e
 
 
 
 def discoverServices(ipArray):
 # discover all currently announced services from given IPs
+	if (DEBUG) :
+		print "-discoverServices: IPs: " + ", ".join(ipArray)
 
 	services = []
 	cmd = "avahi-browse --all --resolve --parsable --no-db-lookup --terminate 2>/dev/null | grep '^=;'"
@@ -212,12 +235,16 @@ def discoverServices(ipArray):
 					services.append(serviceEntry)
 
 	retval = p.wait()
+	if (DEBUG) :
+		print "-discoverServices: discovered Services: ", services
 	return services
 
 
 
 def discoverSleepProxies(interface):
 # discover all available Sleep Proxy Servers
+	if (DEBUG) :
+		print "-discoverSleepProxies: ", interface
 
 	proxies = {}
 	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '^=;'"
@@ -240,6 +267,10 @@ def discoverSleepProxies(interface):
 				proxies[name] = { "ip" : ip, "port" : port}
 
 	retval = p.wait()
+
+	if (DEBUG) :
+		print "-discoverSleepProxies: " + ", ".join(proxies)
+	
 	return proxies
 	
 
@@ -247,17 +278,20 @@ def readArgs() :
 # parse arguments
 	global DEVICE_MODEL
 	global TTL_long
+	global DEBUG
 		
 	parser = argparse.ArgumentParser(description='SleepProxyClient')
 	parser.add_argument('--interfaces', nargs='+', action='store', help="A list of network interfaces to use, seperated by ','", default="all")
 	parser.add_argument('--ttl', action='store', type=int, help='TTL for the update in seconds. Client will be woken up after this period.', default=TTL_long)
 	parser.add_argument('--device-model', action='store', help='The device-model to send (_device-info._tcp.local).', default=DEVICE_MODEL)
+	parser.add_argument('--debug', action='store_true', help='Debug switch for verbose output.', default=False)
 	
 	result = parser.parse_args()
 		
 	# update some global vars 
 	DEVICE_MODEL = result.device_model
 	TTL_long = result.ttl
+	DEBUG = result.debug
 	
 	return result
 
