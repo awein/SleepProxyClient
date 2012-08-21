@@ -1,3 +1,10 @@
+sleepproxyclient (0.5) unstable; urgency=low
+
+  * Fixes a bug added with 0.4 causing registering of services won't happen (#2)
+  * Added debugging-support to sleepproxyclient.py
+  
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 21 Aug 2012 16:00:00 +0200
+ 
 sleepproxyclient (0.4) unstable; urgency=low
 
   * Added full IPv6-Support. Fixes #1
