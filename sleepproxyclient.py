@@ -99,10 +99,11 @@ def sendUpdateForInterface(interface) :
 	if (netifaces.AF_INET6 in ifaddrs) :
 		for ipEntry in ifaddrs[netifaces.AF_INET6] :
 			ipArr.append(ipEntry['addr'].split('%')[0]) # fix trailing %<iface>
-	if (len(proxies) == 0) :
+			
+	if (len(ipArr) == 0) :
 		print "No IPv4 or IPv6 Addresses found for interface: " + interface
 		return	
-	
+		
 	if (DEBUG) :
 		print "-sendUpdateForInterface: IPs: " + ", ".join(ipArr)
 		
@@ -190,7 +191,7 @@ def sendUpdateForInterface(interface) :
 		try:
 			if (DEBUG) :
 							print "-sendUpdateForInterface: sending update to " + proxydata['ip']
-
+			
 			response = dns.query.udp(update, proxydata['ip'], timeout=10, port=int(proxydata['port']))
 
 			if (DEBUG) :
@@ -207,7 +208,7 @@ def sendUpdateForInterface(interface) :
 
 
 
-def discoverServices(ipArray):
+def discoverServices(ipArray) :
 # discover all currently announced services from given IPs
 	if (DEBUG) :
 		print "-discoverServices: IPs: " + ", ".join(ipArray)
@@ -216,7 +217,7 @@ def discoverServices(ipArray):
 	cmd = "avahi-browse --all --resolve --parsable --no-db-lookup --terminate 2>/dev/null | grep '^=;'"
 	
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	for line in p.stdout.readlines():
+	for line in p.stdout.readlines() :
 		lineArr = line.rsplit(";")
 
 		# check length
@@ -225,13 +226,14 @@ def discoverServices(ipArray):
 			print "discovering services failed for: " + str(ipArray)
 			break
 
+		else :
 			#extract service details
 			if (lineArr[7] in ipArray) :
 				service = lineArr[4]
 				port = lineArr[8]
 				txtRecords = lineArr[9].replace('" "', ';').replace('\n', '').replace('"', '').rsplit(';')
 				serviceEntry = [service, port] + txtRecords
-				if (serviceEntry not in services): # check for duplicates due to IPv4/6 dual stack
+				if (serviceEntry not in services) : # check for duplicates due to IPv4/6 dual stack
 					services.append(serviceEntry)
 
 	retval = p.wait()
@@ -241,7 +243,7 @@ def discoverServices(ipArray):
 
 
 
-def discoverSleepProxies(interface):
+def discoverSleepProxies(interface) :
 # discover all available Sleep Proxy Servers
 	if (DEBUG) :
 		print "-discoverSleepProxies: ", interface
@@ -251,7 +253,7 @@ def discoverSleepProxies(interface):
 	
 	
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	for line in p.stdout.readlines():
+	for line in p.stdout.readlines() :
 			lineArr = line.rsplit(";")
 
 			# check length
