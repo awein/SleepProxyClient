@@ -13,7 +13,7 @@ To get this running, a SleepProxyServer on your local network is required. If pr
 Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too.
 
 ### Status
-The latest relase of SleepProxyClient is 0.4.
+The latest relase of SleepProxyClient is 0.5.
 
 Please report issues to make it even more stable to use.
 
@@ -99,7 +99,7 @@ These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 	
 ### What's inside
 
-- 00_sleepproxyclient
+- 00_sleepproxyclient    
 	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep. This script will call sleepproxyclient.sh and is actually calling the sleepproxyclient scripts.
 
 - checkSleep.sh   
