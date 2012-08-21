@@ -34,8 +34,38 @@ In addition it has to be possible to wake the host via Wake on LAN from sleep.
  
 ### Install
 
-On Debian/Ubuntu just install the deb-package by <pre>dpkg -i sleepproxyclient.deb</pre>
-(https://raw.github.com/awein/SleepProxyClient/master/sleepproxyclient.deb)
+On Debian/Ubuntu just install the deb-package available from the repository:
+  1. Get and add the public key for this repo:
+<code>echo '-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+mQENBFAzpncBCAC9cHXeCixyiA1H7pYV1WvEiBuUOA3xeu1uOWAVWRZhQkJq/V/x
+TyZPgT3k43zdNlkEqXG8VdS7w0SARx3zkhHxOz//w7F1hPd4Z0VtfvjaB4YeryM/
+tcoTo2DIRPG4NThUdqgFcfFlRSy47wFcLLozCusBsQnLR5StfQlNtgBVVn9HhpeQ
+cb/BVeK3wJbv7S4hYFKsC5yoseOKmezr51B2lNEDbtZV4Bg6K4lC14Zh4wgEsWUl
+1uz6bClnmybGbp7LElWK/53Bw0iIMZk2A0ZOtMu/U7CQtrSQMD3rHhQ53Gj/zZpc
++9suLpLRR7Sdk876ATljqMBDiouUom86Lde3ABEBAAG0LEFuZHJlYXMgV2Vpbmxl
+aW4gPGFuZHJlYXMuZGV2QHdlaW5sZWluLmluZm8+iQE+BBMBAgAoBQJQM6Z3AhsD
+BQkDwmcABgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRAC20Bcw6YK1z8uB/wI
+uqm4/tPofrsLgZY1qq7K0rT6yq99yYH/10ge8SNPr8tptbiLGheSmjjr7Z9T8D0S
+kiYXR48xR/kQutxv4TfKOgAD7G8Q9LnqGkgJjJGd7xcP+wbAjEgRZuHgrJ28YE3f
+r1xgnvAkTT7oQXuqESu/MT4DwK5FUpDuuZ47cWLptbZK1HaF8zZKl8WFC8P2XhXC
+RVft7nHHna0OvdOFvvbKErd0S4un9rEGDNBKJQeXA6Puy8LPGm7A1y1CC+IsrAJx
+5QtBmQ1DYUSFNfplfBXer+J0qpOwzGEH0N4O/bEGqgApbK3c3aJBpLcdt3VtW/Bj
+f1TvkowRmPkuyVP2h+K+
+=KeW0
+-----END PGP PUBLIC KEY BLOCK-----' | apt-key add -</code>
+
+  2. Add the following line to your <code>sources.list</etc>:
+<code>
+deb http://repo.weinlein.info unstable main
+</code>
+
+  3. Update apt and install the package
+<code>
+apt-get update
+apt-get install sleepproxyclient
+</code>
 
 ### Configuration
 
