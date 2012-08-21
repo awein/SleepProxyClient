@@ -69,7 +69,7 @@ These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 	
 ### What's inside
 
-- 00_sleepproxyclient
+- 00_sleepproxyclient    
 	This hook will be installed to <code>/etc/pm/sleep.d/</code> and called by pm-utils before going to sleep. This script will call sleepproxyclient.sh and is actually calling the sleepproxyclient scripts.
 
 - checkSleep.sh   
