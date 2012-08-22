@@ -36,9 +36,8 @@ In addition it has to be possible to wake the host via Wake on LAN from sleep.
 
 On Debian/Ubuntu just install the deb-package available from the repository:
   1. Get and add the public key for this repo:
-<code>echo '-----BEGIN PGP PUBLIC KEY BLOCK-----
+<pre>echo '-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.10 (GNU/Linux)
-
 mQENBFAzpncBCAC9cHXeCixyiA1H7pYV1WvEiBuUOA3xeu1uOWAVWRZhQkJq/V/x
 TyZPgT3k43zdNlkEqXG8VdS7w0SARx3zkhHxOz//w7F1hPd4Z0VtfvjaB4YeryM/
 tcoTo2DIRPG4NThUdqgFcfFlRSy47wFcLLozCusBsQnLR5StfQlNtgBVVn9HhpeQ
@@ -54,18 +53,19 @@ RVft7nHHna0OvdOFvvbKErd0S4un9rEGDNBKJQeXA6Puy8LPGm7A1y1CC+IsrAJx
 5QtBmQ1DYUSFNfplfBXer+J0qpOwzGEH0N4O/bEGqgApbK3c3aJBpLcdt3VtW/Bj
 f1TvkowRmPkuyVP2h+K+
 =KeW0
------END PGP PUBLIC KEY BLOCK-----' | apt-key add -</code>
+-----END PGP PUBLIC KEY BLOCK-----' | apt-key add -
+</pre>
 
-  2. Add the following line to your <code>sources.list</etc>:
-<code>
+  2. Add the following line to your <code>sources.list</code>:
+<pre>
 deb http://repo.weinlein.info unstable main
-</code>
+</pre>
 
   3. Update apt and install the package
-<code>
+<pre>
 apt-get update
 apt-get install sleepproxyclient
-</code>
+</pre>
 
 ### Configuration
 
