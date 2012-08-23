@@ -11,10 +11,9 @@ Package: sleepproxyclient
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-dnspython, python-argparse, python-netifaces, python-ipy, avahi-utils, pm-utils
 Description: mDNS Sleep Proxy Client implementation.
- sleepproxyclient is a Linux implementation for Wake On Demand by using
- a Sleep Proxy Server.
- Specified services will be registered by the Sleep Proxy Server before
- going to sleep or hibernation. The client will be woken up by the server
- on accessing on of this services.
- An mDNS announced Sleep Proxy Server (_sleep-proxy._udp) is required on
- the local network to work properly.
+ sleepproxyclient is a Linux implementation for Wake On Demand.
+ All announced avahi-services will be registered to all available
+ Sleep Proxy Servers on suspend or hibernation. The client will be
+ woken up on service access via WOL by the Sleep Proxy Server.
+ At least one mDNS announced Sleep Proxy Server (_sleep-proxy._udp) on
+ the local network is required to work properly.

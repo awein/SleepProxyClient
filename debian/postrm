@@ -23,7 +23,7 @@ set -e
 
 case "$1" in
 	purge|remove)
-		rm /etc/pm/sleep.d/00_sleepproxyclient
+		test -e /etc/pm/sleep.d/00_sleepproxyclient && rm /etc/pm/sleep.d/00_sleepproxyclient
 	;;
 	
 	upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
