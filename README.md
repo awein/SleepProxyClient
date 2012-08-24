@@ -35,7 +35,8 @@ In addition it has to be possible to wake the host via Wake on LAN from sleep.
 ### Install
 
 On Debian/Ubuntu just install the deb-package available from the repository:
-  1. Get and add the public key for this repo:
+
+  * Get and add the public key for this repo:
 
 ```
 echo '-----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -72,16 +73,18 @@ mPkuyVP2h+K+
 -----END PGP PUBLIC KEY BLOCK-----' | apt-key add -
 ```
 
-  2. Add the following line to your <code>sources.list</code>:
-<pre>
-deb http://repo.weinlein.info unstable main
-</pre>
+  * Add the repository
 
-  3. Update apt and install the package
-<pre>
+```bash
+echo 'deb http://repo.weinlein.info unstable main' >>/etc/apt/sources.list
+```
+
+  * Update apt and install the package
+
+```bash
 apt-get update
 apt-get install sleepproxyclient
-</pre>
+```
 
 ### Configuration
 
