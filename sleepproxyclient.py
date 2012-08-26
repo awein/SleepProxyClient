@@ -38,11 +38,6 @@ import socket
 #	A Python Wake On Demand client implementation (SleepProxyClient)
 #
 
-
-# The device-model to send (_device-info._tcp.local).
-# can be overwritten by specifying the corresponding argument!
-DEVICE_MODEL = "RackMac"
-
 # TTL for sleep client.
 # A Wake-On-Lan-Packet will be sent after this period.
 # can be overwritten by specifying the corresponding argument!
@@ -145,8 +140,9 @@ def sendUpdateForInterface(interface) :
 	
 	#	add services	
 	for service in discoverServices(ipArr) :
-		type = service[0] + ".local"
-		type_host = host + "." + type
+	
+		service_type = service[0] + ".local"
+		service_type_host = host + "." + service_type
 		port = service[1]
 	
 		# Add the service
@@ -157,15 +153,17 @@ def sendUpdateForInterface(interface) :
 			for i in range(2,len(service)) :
 					txtrecord += " " + service[i]					
 	
-		update.add(type_host, TTL_long, dns.rdatatype.TXT, txtrecord)
-		update.add('_services._dns-sd._udp.local', TTL_long, dns.rdatatype.PTR, type + ".local")
-		update.add(type, TTL_long, dns.rdatatype.PTR, type_host)
-		update.add(type_host, TTL_short, dns.rdatatype.SRV, "0 0 " + port + " " + host_local)
+		if (DEBUG) :
+			txtrecord += " SPC_STATE=sleeping"
 	
 	
-	# add device info
-	update.add(host + '._device-info._tcp.local.', TTL_long, dns.rdatatype.TXT, "model=" + DEVICE_MODEL + " state=sleeping")
+		update.add(service_type_host, TTL_long, dns.rdatatype.TXT, txtrecord)
 	
+		# device-info service gets a txt record only
+		if (service_type != "device-info._tcp.local") :
+			update.add('_services._dns-sd._udp.local', TTL_long, dns.rdatatype.PTR, service_type)
+			update.add(service_type, TTL_long, dns.rdatatype.PTR, service_type_host)
+			update.add(service_type_host, TTL_short, dns.rdatatype.SRV, "0 0 " + port + " " + host_local)
 	
 	#	add edns options
 	
@@ -285,13 +283,11 @@ def readArgs() :
 	parser = argparse.ArgumentParser(description='SleepProxyClient')
 	parser.add_argument('--interfaces', nargs='+', action='store', help="A list of network interfaces to use, seperated by ','", default="all")
 	parser.add_argument('--ttl', action='store', type=int, help='TTL for the update in seconds. Client will be woken up after this period.', default=TTL_long)
-	parser.add_argument('--device-model', action='store', help='The device-model to send (_device-info._tcp.local).', default=DEVICE_MODEL)
 	parser.add_argument('--debug', action='store_true', help='Debug switch for verbose output.', default=False)
 	
 	result = parser.parse_args()
 		
 	# update some global vars 
-	DEVICE_MODEL = result.device_model
 	TTL_long = result.ttl
 	DEBUG = result.debug
 	

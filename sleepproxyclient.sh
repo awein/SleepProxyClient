@@ -44,12 +44,6 @@ then
 	TTL_OPT="--ttl $SPC_TTL"
 fi
 
-DEV_OPT=""
-if [ "$SPC_DEVICE_MODEL" != "" ]
-then
-	DEV_OPT="--device-model $SPC_DEVICE_MODEL"
-fi
-
 DEBUG_OPT=""
 if [ "$SPC_DEBUG" != "" ] ; then
 	DEBUG_OPT="--debug"
