@@ -24,7 +24,7 @@
 #SPC_INTERFACES="eth0"
 
 # set TTL to 2 h
-SPC_TTL=7200
+#SPC_TTL=7200
 
 # enable debug mode
 #SPC_DEBUG=1

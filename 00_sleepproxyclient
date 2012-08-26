@@ -20,15 +20,6 @@
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
 
-## INSTALL:
-## move or link to:
-##		/etc/pm/sleep.d/00sleepproxyclient
-## script has to be executable (chmod +x)
-
-## This script calls sleepproxyclient.sh
-## for all configured interfaces on suspend or hibernate
-
-
 TAG="sleepproxyclient"
 SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
 
