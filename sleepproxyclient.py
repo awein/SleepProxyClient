@@ -78,12 +78,7 @@ def sendUpdateForInterface(interface) :
 	if (DEBUG) :
 		print "-sendUpdateForInterface: " + interface
 
-	## get all available sleep proxies
-	proxies = discoverSleepProxies(interface)
-	if (len(proxies) == 0) :
-		print "No sleep proxy available for interface: " + interface
-		return
-	
+
 	# get IPs for given interface
 	ifaddrs = netifaces.ifaddresses(interface)
 
@@ -104,7 +99,7 @@ def sendUpdateForInterface(interface) :
 		print "-sendUpdateForInterface: IPs: " + ", ".join(ipArr)
 		
 	
-	#get HW Addr
+	# get HW Addr
 	if ":" in interface : # handle virtual interfaces
 		hwAddr = netifaces.ifaddresses(interface.rsplit(':')[0])[netifaces.AF_LINK][0]['addr']
 	else:
@@ -112,7 +107,16 @@ def sendUpdateForInterface(interface) :
 	
 	if (DEBUG) :
 		print "-sendUpdateForInterface: HW-Addr: " + hwAddr
-		
+
+
+	# get all available sleep proxies
+	proxy = discoverSleepProxyForInterface(interface)
+	if (proxy == False) :
+		print "No sleep proxy available for interface: " + interface
+		return
+
+
+	# get hostname
 	host = socket.gethostname() 
 	host_local = host + ".local"
 		
@@ -120,7 +124,7 @@ def sendUpdateForInterface(interface) :
 		print "-sendUpdateForInterface: Host: " + host_local
 		
 		
-	#	create update request
+	# create update request
 	update = dns.update.Update("")
 	
 	## add some host stuff
@@ -187,26 +191,26 @@ def sendUpdateForInterface(interface) :
 	
 	if (DEBUG) :
 		print "-sendUpdateForInterface: request: ", update
-	
+		
 	
 	# send request to proxy
-		try:
-			if (DEBUG) :
-							print "-sendUpdateForInterface: sending update to " + proxydata['ip']
-			
-			response = dns.query.udp(update, proxydata['ip'], timeout=10, port=int(proxydata['port']))
+	try:
+		if (DEBUG) :
+			print "-sendUpdateForInterface: sending update to " + proxy['ip']
+		
+		response = dns.query.udp(update, proxy['ip'], timeout=10, port=int(proxy['port']))
 
-			if (DEBUG) :
-							print "-sendUpdateForInterface: response: ", response
+		if (DEBUG) :
+			print "-sendUpdateForInterface: response: ", response
 
-			rcode = response.rcode()
-			if rcode != dns.rcode.NOERROR:
-				print "Unable to register with SleepProxy " + name + " (" + proxydata['ip'] + ":" + proxydata['port'] + ") - Errcode: " + rcode
-				print response
-			
-		except DNSException, e:
-			print "Unable to register with SleepProxy " + name + " (" + proxydata['ip'] + ":" + proxydata['port'] + ")"
-			print e.__class__, e
+		rcode = response.rcode()
+		if rcode != dns.rcode.NOERROR:
+			print "Unable to register with SleepProxy " + proxy['name'] + " (" + proxy['ip'] + ":" + proxy['port'] + ") - Errcode: " + rcode
+			print response
+		
+	except DNSException, e:
+		print "Unable to register with SleepProxy " + proxy['name'] + " (" + proxy['ip'] + ":" + proxy['port'] + ")"
+		print e.__class__, e
 
 
 
@@ -248,40 +252,42 @@ def discoverServices(ipArray) :
 
 
 
-def discoverSleepProxies(interface) :
-# discover all available Sleep Proxy Servers
-	if (DEBUG) :
-		print "-discoverSleepProxies: ", interface
+def discoverSleepProxyForInterface(interface) :
 
-	proxies = {}
-	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '^=;'"
-	
-	
+	if (DEBUG) :
+		print "-discoverSleepProxyForInterface: Interface: ", interface
+
+	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '^=;" + interface.rsplit(":")[0] + "'"
+
+	# the best proxy found
+	proxy = False
+	# the best proxy properties found
+	minProperties = ""
+		
 	# get all sleep proxies for the given interface an check for duplicates (IPv4/IPv6)
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	for line in p.stdout.readlines() :
-			lineArr = line.rsplit(";")
+		lineArr = line.rsplit(";")
 
-			# check length
-			if (len(lineArr) < 10) :
-				p.terminate()
-				break
+		# check length
+		if (len(lineArr) < 10) :
+			p.terminate()
+			break
 
-			name = lineArr[6]
-			ip = lineArr[7]
-			port = lineArr[8]
-			
-			if name not in proxies :
-				proxies[name] = { "ip" : ip, "port" : port}
-
+		properties = lineArr[3].rsplit(" ")[0]
+		if (minProperties == "" or minProperties > properties) :
+			minProperties = properties
+			proxy = { "name" : lineArr[6], "ip" : lineArr[7], "port" : lineArr[8] }
+	
 	# wait for cmd to terminate
 	p.wait()
 
 	if (DEBUG) :
-		print "-discoverSleepProxies: " + ", ".join(proxies)
+		print "-discoverSleepProxyForInterface: selected proxy: ", proxy, " with properties: ", minProperties
 	
-	return proxies
-	
+	return proxy
+
+
 
 def readArgs() :
 # parse arguments
