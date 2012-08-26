@@ -37,14 +37,19 @@ import socket
 #	A Python Wake On Demand client implementation (SleepProxyClient)
 #
 
-# TTL for sleep client.
+
+# TTL (lease time) for sleep client.
 # A Wake-On-Lan-Packet will be sent after this period.
 # can be overwritten by specifying the corresponding argument!
-TTL_long = 7200 # 2 h
+TTL = 7200 # 2 h
 
-# TTL is used for some records (2min)
+# TTL for ddns update request ressource records
+# see http://tools.ietf.org/html/draft-cheshire-dnsext-multicastdns-08#section-11
 # should NOT be changed
-TTL_short = 120
+TTL_long = 4500 # 75 min
+# TTL is used for some other records
+# should NOT be changed
+TTL_short = 120 # 2 min
 
 # debug flag
 DEBUG = False
@@ -176,7 +181,7 @@ def sendUpdateForInterface(interface) :
 	
 	# http://files.dns-sd.org/draft-sekar-dns-ul.txt
 	# 2: Lease Time in seconds  
-	leaseTimeOption = dns.edns.GenericOption(2, struct.pack("!L", 7200))
+	leaseTimeOption = dns.edns.GenericOption(2, struct.pack("!L", TTL))
 	
 	# http://tools.ietf.org/id/draft-cheshire-edns0-owner-option-00.txt
 	# 4: edns owner option (MAC addr for WOL Magic packet)
@@ -291,8 +296,7 @@ def discoverSleepProxyForInterface(interface) :
 
 def readArgs() :
 # parse arguments
-	global DEVICE_MODEL
-	global TTL_long
+	global TTL
 	global DEBUG
 		
 	parser = argparse.ArgumentParser(description='SleepProxyClient')
@@ -303,7 +307,7 @@ def readArgs() :
 	result = parser.parse_args()
 		
 	# update some global vars 
-	TTL_long = result.ttl
+	TTL = result.ttl
 	DEBUG = result.debug
 	
 	return result
