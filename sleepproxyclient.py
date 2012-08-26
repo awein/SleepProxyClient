@@ -26,11 +26,10 @@ import dns.edns
 import dns.rrset
 from dns.exception import DNSException
 
-from IPy import IP
-import netifaces
+from IPy import IP # used to get reverseName from IP
+import netifaces # network interface handling
 import argparse
 import struct
-import sys
 import subprocess
 import socket
 
@@ -50,6 +49,7 @@ TTL_short = 120
 # debug flag
 DEBUG = False
 
+
 def main() :
 	
 	args = readArgs()
@@ -62,7 +62,7 @@ def main() :
 		interfaces = sysIfaces
 	
 	if (DEBUG) :
-		print "Interfaces: " + ", ".join(interfaces)
+		print "Interfaces: ", ", ".join(interfaces)
 	
 	
 	for iface in interfaces : 
@@ -84,6 +84,7 @@ def sendUpdateForInterface(interface) :
 		print "No sleep proxy available for interface: " + interface
 		return
 	
+	# get IPs for given interface
 	ifaddrs = netifaces.ifaddresses(interface)
 
 	ipArr = []
@@ -118,10 +119,11 @@ def sendUpdateForInterface(interface) :
 	if (DEBUG) :
 		print "-sendUpdateForInterface: Host: " + host_local
 		
+		
 	#	create update request
 	update = dns.update.Update("")
 	
-	# add some host stuff
+	## add some host stuff
 	for currIP in ipArr :
 		
 		ipAddr = IP(currIP)
@@ -138,14 +140,14 @@ def sendUpdateForInterface(interface) :
 		update.add(host_local, TTL_short, dnsDatatype,  currIP)
 	
 	
-	#	add services	
+	## add services	
 	for service in discoverServices(ipArr) :
 	
 		service_type = service[0] + ".local"
 		service_type_host = host + "." + service_type
 		port = service[1]
 	
-		# Add the service
+		# add the service
 	 	txtrecord = ""
 		if (len(service) == 2 or service[2] == "") : 
 			txtrecord = chr(0)
@@ -165,7 +167,8 @@ def sendUpdateForInterface(interface) :
 			update.add(service_type, TTL_long, dns.rdatatype.PTR, service_type_host)
 			update.add(service_type_host, TTL_short, dns.rdatatype.SRV, "0 0 " + port + " " + host_local)
 	
-	#	add edns options
+	
+	## add edns options
 	
 	# http://files.dns-sd.org/draft-sekar-dns-ul.txt
 	# 2: Lease Time in seconds  
@@ -181,11 +184,12 @@ def sendUpdateForInterface(interface) :
 	# 3: payload size
 	update.use_edns(0, TTL_long, 1440, None, [leaseTimeOption, ownerOption])
 	
-	#print update	
+	
+	if (DEBUG) :
+		print "-sendUpdateForInterface: request: ", update
 	
 	
-	# send request to all proxies
-	for name, proxydata in proxies.iteritems() :
+	# send request to proxy
 		try:
 			if (DEBUG) :
 							print "-sendUpdateForInterface: sending update to " + proxydata['ip']
@@ -234,9 +238,12 @@ def discoverServices(ipArray) :
 				if (serviceEntry not in services) : # check for duplicates due to IPv4/6 dual stack
 					services.append(serviceEntry)
 
-	retval = p.wait()
+	# wait for cmd to terminate
+	p.wait()
+	
 	if (DEBUG) :
 		print "-discoverServices: discovered Services: ", services
+		
 	return services
 
 
@@ -250,6 +257,7 @@ def discoverSleepProxies(interface) :
 	cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate _sleep-proxy._udp 2>/dev/null | grep '^=;'"
 	
 	
+	# get all sleep proxies for the given interface an check for duplicates (IPv4/IPv6)
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 	for line in p.stdout.readlines() :
 			lineArr = line.rsplit(";")
@@ -266,7 +274,8 @@ def discoverSleepProxies(interface) :
 			if name not in proxies :
 				proxies[name] = { "ip" : ip, "port" : port}
 
-	retval = p.wait()
+	# wait for cmd to terminate
+	p.wait()
 
 	if (DEBUG) :
 		print "-discoverSleepProxies: " + ", ".join(proxies)
@@ -294,4 +303,5 @@ def readArgs() :
 	return result
 
 
+# call main
 main()
