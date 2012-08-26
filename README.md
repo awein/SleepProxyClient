@@ -24,13 +24,11 @@ Please report issues to make it even more stable to use.
 
  - python
  - dnspython (http://www.dnspython.org)
+ - and other usefull python modules
  - avahi-browse (to discover the sleep proxy and local services)
  - pm-utils (pm-suspend has to be used to suspend the host to trigger these scripts)
  
- These dependencies can be easy installed on Debian/Ubuntu using the following command:
- <pre>apt-get install python python-dnspython python-argparse python-netifaces python-ipy python-support avahi-utils pm-utils</pre>
- 
-In addition it has to be possible to wake the host via Wake on LAN from sleep.
+ In addition it has to be possible to wake the host via Wake on LAN from sleep.
  
 ### Install
 
