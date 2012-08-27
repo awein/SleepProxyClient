@@ -1,9 +1,9 @@
 sleepproxyclient (0.6) unstable; urgency=low
 
- * Fixes lease time handling (Issue #3)
- * Fixes registration on networks with multiple sleep proxy servers (Issue #4)
- * Removed device model option from configuration and scripts.
-   Use avahi to announce the _device-info._tcp service instead.
+  * Fixes lease time handling (Issue #3)
+  * Fixes registration on networks with multiple sleep proxy servers (Issue #4)
+  * Removed option to specify the devide model since it is not mandatory.
+    Use avahi to announce the _device-info._tcp service instead.
  
 -- Andreas Weinlein <andreas.dev@weinlein.info>  Mon, 27 Aug 2012 13:27:10 +0200
 
