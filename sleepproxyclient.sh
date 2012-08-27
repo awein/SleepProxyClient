@@ -19,14 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#
-# sleepproxycclient.sh - SleepProxyClient
-#
-# Send DNS Update-request to all discovered SleepProxys
-#
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
 # get defaults
 . /etc/default/sleepproxyclient

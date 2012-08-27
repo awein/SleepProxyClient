@@ -72,7 +72,7 @@ def main() :
 	
 	for iface in interfaces : 
 		if iface not in sysIfaces :
-			print "Invalid interface specified: " + iface 
+			print "Invalid interface specified: ", iface 
 		elif "lo" not in iface:
 			sendUpdateForInterface(iface)
 	
@@ -81,7 +81,7 @@ def main() :
 def sendUpdateForInterface(interface) :
 # send update request per interface
 	if (DEBUG) :
-		print "-sendUpdateForInterface: " + interface
+		print "-sendUpdateForInterface: ", interface
 
 
 	# get IPs for given interface
@@ -97,11 +97,11 @@ def sendUpdateForInterface(interface) :
 			ipArr.append(ipEntry['addr'].split('%')[0]) # fix trailing %<iface>
 			
 	if (len(ipArr) == 0) :
-		print "No IPv4 or IPv6 Addresses found for interface: " + interface
+		print "No IPv4 or IPv6 Addresses found for interface: ", interface
 		return	
 		
 	if (DEBUG) :
-		print "-sendUpdateForInterface: IPs: " + ", ".join(ipArr)
+		print "-sendUpdateForInterface: IPs: ", ", ".join(ipArr)
 		
 	
 	# get HW Addr
@@ -111,13 +111,13 @@ def sendUpdateForInterface(interface) :
 		hwAddr = ifaddrs[netifaces.AF_LINK][0]['addr']
 	
 	if (DEBUG) :
-		print "-sendUpdateForInterface: HW-Addr: " + hwAddr
+		print "-sendUpdateForInterface: HW-Addr: ", hwAddr
 
 
 	# get all available sleep proxies
 	proxy = discoverSleepProxyForInterface(interface)
 	if (proxy == False) :
-		print "No sleep proxy available for interface: " + interface
+		print "No sleep proxy available for interface: ", interface
 		return
 
 
@@ -188,11 +188,7 @@ def sendUpdateForInterface(interface) :
 	cleanMAC = hwAddr.replace(":", "")
 	ownerOption = dns.edns.GenericOption(4, ("0000" + cleanMAC).decode('hex_codec'))
 	
-	# 1: use edns
-	# 2: Z (TTL) 
-	# 3: payload size
-	update.use_edns(0, TTL_long, 1440, None, [leaseTimeOption, ownerOption])
-	
+	update.use_edns(edns=True, ednsflags=TTL_long, options=[leaseTimeOption, ownerOption])	
 	
 	if (DEBUG) :
 		print "-sendUpdateForInterface: request: ", update
