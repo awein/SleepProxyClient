@@ -126,7 +126,7 @@ These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 
 ## Support this project
 
-Just support this project by contributing some code, creating issues or just by clicking the flattr-button - Thanks!
+Support this project by contributing some code, creating issues or by clicking the flattr-button - Thanks!
 
 <a href="http://flattr.com/thing/713748/aweinSleepProxyClient-on-GitHub" target="_blank">
 <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a>
