@@ -26,12 +26,13 @@ Please report issues to make it even more stable to use.
  - dnspython (http://www.dnspython.org)
  - and other usefull python modules
  - avahi-browse (to discover the sleep proxy and local services)
- - pm-utils (pm-suspend has to be used to suspend the host to trigger these scripts)
- 
+ - pm-utils or similar power management tools
+
  In addition it has to be possible to wake the host via Wake on LAN from sleep.
  
 ### Install
 
+#### Linux
 On Debian/Ubuntu just install the deb-package available from the repository:
 
   * Get and add the public key for this repo:
@@ -84,6 +85,13 @@ apt-get update
 apt-get install sleepproxyclient
 ```
 
+#### Other operating systems
+
+SleepProxyClient was tested on Linux but should work on other operating systems too.  
+The only Linux specific dependency `pm-utils` should be easily replaceable by other OS-specific power management tools like `apmd` on BSD.
+Just ensure the suspend-script (`sleepproxyclient.sh`) is called before suspending the system.
+
+
 ### Configuration
 
 #### Services
@@ -108,9 +116,6 @@ Some more parameters can be adjusted to fit your needs:
 
 - TTL (Time to live)   
 	The TTL controls the life time of the mDNS announcement. After this period the sleep client will be woken up be the sleep proxy server again. The default value is 2 hours.
-
-- Device Model   
-	The device model to be announced can also be changed. (The small icon besides the servers name within the finder sidebar). It defaults to "RackMac".
 
 These settings can be configured via <code>/etc/default/sleepproxyclient</code>
 	
