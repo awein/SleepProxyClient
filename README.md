@@ -9,7 +9,7 @@ Just access one of the services and the device will be woken up again.
 These scripts enables your Non-Apple server to save energy by going to sleep if it's currently not in use.
 But it will be instantly woken up again by the SleepProxyServer using Wake on Lan (WOL) if one of it's services is requested. See http://en.wikipedia.org/wiki/Bonjour_Sleep_Proxy for more details.
 
-### Requierments
+### Requirements
 To get this running, a SleepProxyServer on your local network is required. If present, it will announce itself via MDNS as <code>_sleep-proxy._udp</code>. 
 Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too.
 
