@@ -278,8 +278,8 @@ def discoverSleepProxyForInterface(interface) :
 
 		properties = lineArr[3].rsplit(" ")[0]
 
-		# choose the server with lowest properties and prefer IPv6 on equal properties
-		if (minProperties == "" or minProperties > properties):
+		# choose the server with lowest properties and prefer none 169.254.X.X addresses
+		if (minProperties == "" or minProperties > properties or (proxy and proxy['ip'].startswith('169.254.'))):
 			minProperties = properties
 			proxy = { "name" : lineArr[6], "ip" : lineArr[7], "port" : lineArr[8] }
 
