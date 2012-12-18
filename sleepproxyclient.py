@@ -24,9 +24,10 @@ import dns.rdtypes
 import dns.rdata
 import dns.edns
 import dns.rrset
+import dns.inet
+import dns.reversename
 from dns.exception import DNSException
 
-from IPy import IP # used to get reverseName from IP
 import netifaces # network interface handling
 import argparse
 import struct
@@ -66,18 +67,18 @@ def main() :
 	interfaces = args.interfaces
 	if args.interfaces == "all" :
 		interfaces = sysIfaces
-	
+
 	if (DEBUG) :
 		print "Interfaces: ", ", ".join(interfaces)
-	
-	
-	for iface in interfaces : 
+
+
+	for iface in interfaces :
 		if iface not in sysIfaces :
-			print "Invalid interface specified: ", iface 
+			print "Invalid interface specified: ", iface
 		elif "lo" not in iface:
 			sendUpdateForInterface(iface)
-	
-	
+
+
 
 def sendUpdateForInterface(interface) :
 # send update request per interface
@@ -135,18 +136,17 @@ def sendUpdateForInterface(interface) :
 
 	## add some host stuff
 	for currIP in ipArr :
-		
-		ipAddr = IP(currIP)
-		ipVersion = ipAddr.version()
-		
-		if ipVersion == 4 :
+
+		ipVersion = dns.inet.af_for_address(currIP)
+
+		if ipVersion == dns.inet.AF_INET:
 			dnsDatatype = dns.rdatatype.A
-		elif ipVersion == 6 :
+		elif ipVersion == dns.inet.AF_INET6:
 			dnsDatatype = dns.rdatatype.AAAA
 		else :
-			continue			
-		
-		update.add(ipAddr.reverseName(), TTL_short, dns.rdatatype.PTR, host_local)
+			continue
+
+		update.add(dns.reversename.from_address(currIP), TTL_short, dns.rdatatype.PTR, host_local)
 		update.add(host_local, TTL_short, dnsDatatype,  currIP)
 
 
@@ -277,7 +277,9 @@ def discoverSleepProxyForInterface(interface) :
 			break
 
 		properties = lineArr[3].rsplit(" ")[0]
-		if (minProperties == "" or minProperties > properties) :
+
+		# choose the server with lowest properties and prefer IPv6 on equal properties
+		if (minProperties == "" or minProperties > properties):
 			minProperties = properties
 			proxy = { "name" : lineArr[6], "ip" : lineArr[7], "port" : lineArr[8] }
 
@@ -295,7 +297,7 @@ def readArgs() :
 # parse arguments
 	global TTL
 	global DEBUG
-		
+
 	parser = argparse.ArgumentParser(description='SleepProxyClient')
 	parser.add_argument('--interfaces', nargs='+', action='store', help="A list of network interfaces to use, seperated by ','", default="all")
 	parser.add_argument('--ttl', action='store', type=int, help='TTL for the update in seconds. Client will be woken up after this period.', default=TTL_long)
@@ -306,9 +308,9 @@ def readArgs() :
 	# update some global vars
 	TTL = result.ttl
 	DEBUG = result.debug
-	
+
 	return result
 
-
-# call main
-main()
+if __name__ == '__main__':
+	# call main
+	main()
