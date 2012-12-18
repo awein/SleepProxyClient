@@ -24,10 +24,9 @@ import dns.rdtypes
 import dns.rdata
 import dns.edns
 import dns.rrset
-import dns.inet
-import dns.reversename
 from dns.exception import DNSException
 
+from IPy import IP # used to get reverseName from IP
 import netifaces # network interface handling
 import argparse
 import struct
@@ -136,17 +135,18 @@ def sendUpdateForInterface(interface) :
 
 	## add some host stuff
 	for currIP in ipArr :
-
-		ipVersion = dns.inet.af_for_address(currIP)
-
-		if ipVersion == dns.inet.AF_INET:
+		
+		ipAddr = IP(currIP)
+		ipVersion = ipAddr.version()
+		
+		if ipVersion == 4 :
 			dnsDatatype = dns.rdatatype.A
-		elif ipVersion == dns.inet.AF_INET6:
+		elif ipVersion == 6 :
 			dnsDatatype = dns.rdatatype.AAAA
 		else :
-			continue
-
-		update.add(dns.reversename.from_address(currIP), TTL_short, dns.rdatatype.PTR, host_local)
+			continue			
+		
+		update.add(ipAddr.reverseName(), TTL_short, dns.rdatatype.PTR, host_local)
 		update.add(host_local, TTL_short, dnsDatatype,  currIP)
 
 

@@ -9,7 +9,7 @@ Standards-Version: 3.9.3
 
 Package: sleepproxyclient
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-dnspython, python-argparse, python-netifaces, python-ipy, avahi-utils, pm-utils
+Depends: ${misc:Depends}, ${python:Depends}, python-dnspython, python-argparse, python-netifaces, python-avahi, pm-utils
 Description: mDNS Sleep Proxy Client implementation.
  sleepproxyclient is a Linux implementation for Wake On Demand.
  All announced avahi-services will be registered to all available
