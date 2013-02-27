@@ -30,7 +30,8 @@ case "$1" in
 		# fix executables
 		chmod +x /usr/share/sleepproxyclient/scripts/*
 		
-		test -e /etc/pm/sleep.d/00_sleepproxyclient && ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /etc/pm/sleep.d/00_sleepproxyclient
+		# create symlink
+		test ! -e /etc/pm/sleep.d/00_sleepproxyclient && ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /etc/pm/sleep.d/00_sleepproxyclient
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)
