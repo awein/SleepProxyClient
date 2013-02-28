@@ -6,7 +6,7 @@ Wake on Demand (http://support.apple.com/kb/HT3774) is great.
 It enables an unused device to go to sleep while keeping the announced MDNS (Zeroconf) services alive.
 Just access one of the services and the device will be woken up again.
 
-These scripts enables your Non-Apple server to save energy by going to sleep if it's currently not in use.
+These scripts enables your Non-Apple server (or NAS) to save energy by going to sleep if it's currently not in use.
 But it will be instantly woken up again by the SleepProxyServer using Wake on Lan (WOL) if one of it's services is requested. See http://en.wikipedia.org/wiki/Bonjour_Sleep_Proxy for more details.
 
 ### Requirements
@@ -14,7 +14,7 @@ To get this running, a SleepProxyServer on your local network is required. If pr
 Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too.
 
 ### Status
-The latest release of SleepProxyClient is 0.6 (2012-08-27).
+The latest release of SleepProxyClient is 0.7 (2013-02-28).
 
 Please report issues to make it even more stable to use.
 
@@ -32,6 +32,9 @@ Please report issues to make it even more stable to use.
  In addition it has to be possible to wake the host via Wake on LAN from sleep.
  
 ### Install
+
+SleepProxyClient works out of the box on Debian/Ubuntu.
+It should be quite easy to install SPC on other Linux distributions and UNIX/BSD systems too.
 
 #### Linux
 On Debian/Ubuntu just install the deb-package available from the repository:
