@@ -1,3 +1,11 @@
+sleepproxyclient (0.7) unstable; urgency=low
+
+  * Improved server address selection (Issue #5)
+   (IPv4 link-local addresses have low priority now)
+  * packaging fix: posting script has not created the symlink to /etc/pm/sleep.d
+ 
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Thu, 28 Feb 2013 10:54:43 +0100
+
 sleepproxyclient (0.6) unstable; urgency=low
 
   * Fixes lease time handling (Issue #3)
