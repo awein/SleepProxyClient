@@ -276,12 +276,17 @@ def discoverSleepProxyForInterface(interface) :
 			p.terminate()
 			break
 
+
+		currProxy = { "name" : lineArr[6], "ip" : lineArr[7], "port" : lineArr[8] }
 		properties = lineArr[3].rsplit(" ")[0]
+
+		if (DEBUG) :
+			print "-discoverSleepProxyForInterface: available proxy: ", currProxy, " with properties: ", properties
 
 		# choose the server with lowest properties and prefer none 169.254.X.X addresses
 		if (minProperties == "" or minProperties > properties or (proxy and proxy['ip'].startswith('169.254.'))):
 			minProperties = properties
-			proxy = { "name" : lineArr[6], "ip" : lineArr[7], "port" : lineArr[8] }
+			proxy = currProxy
 
 	# wait for cmd to terminate
 	p.wait()
