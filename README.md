@@ -14,9 +14,8 @@ To get this running, a SleepProxyServer on your local network is required. If pr
 Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too.
 
 ### Status
-The latest release of SleepProxyClient is 0.7 (2013-02-28).
-
-Please report issues to make it even more stable to use.
+SleepProxyClient is pretty stable and ready for everyday use.
+Please report issues to make it even more stable.
 
 
 ## Setup / Install
