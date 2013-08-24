@@ -1,3 +1,15 @@
+sleepproxyclient (0.7.2) unstable; urgency=low
+
+  * added missing package dependency to avahi-utils
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 24 Aug 2013 13:14:00 +0100
+
+sleepproxyclient (0.7.1) unstable; urgency=low
+
+  * removed dependency to IPy
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Fri, 23 Aug 2013 19:44:00 +0100
+
 sleepproxyclient (0.7) unstable; urgency=low
 
   * Improved server address selection (Issue #5)
