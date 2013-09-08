@@ -18,14 +18,17 @@ export LANG=en_US.utf8
 #used to check for a previous successfull run
 TMPFILE="/tmp/checkSleep"
 
+#logging tag
+TAG="checkSleep"
+
 #value will be returned. 0 if the creteria was fullfilled
 RET=0
 
 # run SleepProxyClient
 function doSleep {
-	logger "checkSleep: initiating sleep"
+	logger -t $TAG "initiating sleep"
 	pm-suspend
-	logger "checkSleep: awake!"
+	logger -t $TAG "awake!"
 }
 
 # check the creteria
@@ -37,7 +40,7 @@ function doCheck {
 	USERS=`who | wc -l`
 	if [ $USERS -gt 0 ]
 	then
-#		echo "Active users: $USERS"
+#		logger -t $TAG "Active users: $USERS"
 		RESULT=1
 	fi
 
@@ -46,7 +49,7 @@ function doCheck {
 	CONNS=`netstat -tn | grep -v "127.0.0.1" | grep "ESTABLISHED" | wc -l`
 	if [ $CONNS -gt 0 ]
 	then
-#		echo "Active connections: $CONNS"
+#		logger -t $TAG "Active connections: $CONNS"
 		RESULT=1
 	fi
 
@@ -54,6 +57,7 @@ function doCheck {
 	LOAD5MINAVG=`cat /proc/loadavg  | cut -d " " -f 2`
 	if [ `echo "$LOAD5MINAVG > 1" | bc` -gt 0 ]
 	then
+#		logger -t $TAG "System load: $LOAD5MINAVG"
 		RESULT=1
 	fi
 	return $RESULT
@@ -74,6 +78,7 @@ then
 	else
 		# mark run as positive
 		touch "$TMPFILE"
+#		logger -t $TAG "I am bored. Give me something to do or I will go to sleep in some minutes"
 	fi
 else
 	rm -f "$TMPFILE"
