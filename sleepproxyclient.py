@@ -65,7 +65,7 @@ def main() :
 	sysIfaces = netifaces.interfaces()
 
 	interfaces = args.interfaces
-	if args.interfaces == "all" :
+	if "all" in args.interfaces:
 		interfaces = sysIfaces
 
 	if (DEBUG) :
@@ -303,7 +303,7 @@ def readArgs() :
 	global DEBUG
 
 	parser = argparse.ArgumentParser(description='SleepProxyClient')
-	parser.add_argument('--interfaces', nargs='+', action='store', help="A list of network interfaces to use, seperated by ','", default="all")
+	parser.add_argument('--interfaces', nargs='+', metavar="iface", action='store', help="A list of network interfaces to use, separated by space.", default=["all"])
 	parser.add_argument('--ttl', action='store', type=int, help='TTL for the update in seconds. Client will be woken up after this period.', default=TTL_long)
 	parser.add_argument('--debug', action='store_true', help='Debug switch for verbose output.', default=False)
 

@@ -19,7 +19,7 @@
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
 
-# A list of interfaces to use (seperated by ',')
+# A list of interfaces to use (separated by space)
 # To use all interfaces use 'all' or leave the variable unset
 #SPC_INTERFACES="eth0"
 
