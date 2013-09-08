@@ -21,11 +21,6 @@ TMPFILE="/tmp/checkSleep"
 #value will be returned. 0 if the creteria was fullfilled
 RET=0
 
-# network interface to use
-IFACE="eth0"
-
-SCRIPT_DIR=$(dirname $0)
-
 # run SleepProxyClient
 function doSleep {
 	logger "checkSleep: initiating sleep"
