@@ -1,12 +1,18 @@
+sleepproxyclient (0.7.3) unstable; urgency=low
+
+  * Bugfix for multiple interface handling (Issue #8)
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Sun, 08 Sep 2013 12:58:00 +0100
+
 sleepproxyclient (0.7.2) unstable; urgency=low
 
-  * added missing package dependency to avahi-utils
+  * Added missing package dependency to avahi-utils
 
  -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 24 Aug 2013 13:14:00 +0100
 
 sleepproxyclient (0.7.1) unstable; urgency=low
 
-  * removed dependency to IPy
+  * Removed dependency to IPy
 
  -- Andreas Weinlein <andreas.dev@weinlein.info>  Fri, 23 Aug 2013 19:44:00 +0100
 
@@ -29,7 +35,7 @@ sleepproxyclient (0.6) unstable; urgency=low
 
 sleepproxyclient (0.5.1) unstable; urgency=low
 
-  * packaging fixes
+  * Packaging fixes
   
  -- Andreas Weinlein <andreas.dev@weinlein.info>  Thu, 23 Aug 2012 20:00:00 +0200
  
@@ -43,7 +49,7 @@ sleepproxyclient (0.5) unstable; urgency=low
 sleepproxyclient (0.4) unstable; urgency=low
 
   * Added full IPv6-Support. Fixes #1
-  * some minor fixes
+  * Some minor fixes
   
  -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 21 Jul 2012 16:00:00 +0200
  
