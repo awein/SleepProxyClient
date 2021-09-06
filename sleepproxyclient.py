@@ -43,7 +43,7 @@ import codecs
 # TTL (lease time) for sleep client.
 # A Wake-On-Lan-Packet will be sent after this period.
 # can be overwritten by specifying the corresponding argument!
-TTL = 72000 # 20 h
+TTL = 604800 # 7 days
 
 # TTL for ddns update request ressource records
 # see http://tools.ietf.org/html/draft-cheshire-dnsext-multicastdns-08#section-11
