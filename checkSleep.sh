@@ -27,7 +27,9 @@ RET=0
 # run SleepProxyClient
 function doSleep {
 	logger -t $TAG "initiating sleep"
-	pm-suspend
+#	pm-suspend
+	python $(dirname $0)/sleepproxyclient.py
+	shutdown -h now
 	logger -t $TAG "awake!"
 }
 
@@ -40,7 +42,7 @@ function doCheck {
 	USERS=`who | wc -l`
 	if [ $USERS -gt 0 ]
 	then
-#		logger -t $TAG "Active users: $USERS"
+		logger -t $TAG "Active users: $USERS"
 		RESULT=1
 	fi
 
@@ -49,7 +51,7 @@ function doCheck {
 	CONNS=`netstat -tn | grep -v "127.0.0.1" | grep "ESTABLISHED" | wc -l`
 	if [ $CONNS -gt 0 ]
 	then
-#		logger -t $TAG "Active connections: $CONNS"
+		logger -t $TAG "Active connections: $CONNS"
 		RESULT=1
 	fi
 
@@ -57,7 +59,7 @@ function doCheck {
 	LOAD5MINAVG=`cat /proc/loadavg  | cut -d " " -f 2`
 	if [ `echo "$LOAD5MINAVG > 1" | bc` -gt 0 ]
 	then
-#		logger -t $TAG "System load: $LOAD5MINAVG"
+		logger -t $TAG "System load: $LOAD5MINAVG"
 		RESULT=1
 	fi
 	return $RESULT
@@ -78,7 +80,7 @@ then
 	else
 		# mark run as positive
 		touch "$TMPFILE"
-#		logger -t $TAG "I am bored. Give me something to do or I will go to sleep in some minutes"
+		logger -t $TAG "I am bored. Give me something to do or I will go to sleep in some minutes"
 	fi
 else
 	rm -f "$TMPFILE"
