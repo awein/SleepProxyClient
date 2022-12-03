@@ -1,0 +1,13 @@
+[BASIC]
+
+# Good variable names
+good-names=
+    e,
+    i,
+    logger,
+
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=120
