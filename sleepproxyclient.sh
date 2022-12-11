@@ -24,21 +24,21 @@
 . /etc/default/sleepproxyclient
 
 
-IF_OPT=""
+IF_OPT=()
 if [ "$SPC_INTERFACES" != "" ]
 then
-	IF_OPT="--interfaces $SPC_INTERFACES"
+	IF_OPT=("--interfaces" $SPC_INTERFACES)
 fi
 
-LEASE_TIME_OPT=""
+LEASE_TIME_OPT=()
 if [ "$SPC_LEASE_TIME" != "" ]
 then
-	LEASE_TIME_OPT="--lease-time $SPC_LEASE_TIME"
+	LEASE_TIME_OPT=("--lease-time" "$SPC_LEASE_TIME")
 fi
 
-LOGFILE_OPT=""
+LOGFILE_OPT=()
 if [ "$SPC_LOGFILE" != "" ] ; then
-	LOGFILE_OPT="--logfile '$SPC_LOGFILE'"
+	LOGFILE_OPT=("--logfile" "$SPC_LOGFILE")
 fi
 
 DEBUG_OPT=""
@@ -51,4 +51,4 @@ SCRIPTDIR=`dirname $0`
 if [ "$SPC_DEBUG" != "" ] ; then
 	set -x
 fi
-python3 $SCRIPTDIR/sleepproxyclient.py $IF_OPT $LEASE_TIME_OPT $LOGFILE_OPT $DEBUG_OPT
+python3 $SCRIPTDIR/sleepproxyclient.py ${IF_OPT[@]} "${LEASE_TIME_OPT[@]}" "${LOGFILE_OPT[@]}" $DEBUG_OPT
