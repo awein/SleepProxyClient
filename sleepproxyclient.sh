@@ -4,7 +4,7 @@
 #
 # @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
 # @author    Andreas Weinlein <andreas.dev@weinlein.info>
-# @copyright Copyright (c) 2012 Andreas Weinlein
+# @copyright Copyright (c) 2012-2022 Andreas Weinlein
 #
 # SleepProxyClient is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,10 +30,11 @@ then
 	IF_OPT="--interfaces $SPC_INTERFACES"
 fi
 
-TTL_OPT=""
-if [ "$SPC_TTL" != "" ]
+LEASE_TIME_OPT=""
+if [ "$SPC_LEASE_TIME" != "" ]
 then
-	TTL_OPT="--ttl $SPC_TTL"
+	LEASE_TIME_OPT="--lease-time $SPC_LEASE_TIME"
+fi
 fi
 
 DEBUG_OPT=""
@@ -44,6 +45,6 @@ fi
 SCRIPTDIR=`dirname $0`
 
 if [ "$SPC_DEBUG" != "" ] ; then
-	echo "calling: python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT $DEBUG_OPT"
+	set -x
 fi
 python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT $DEBUG_OPT

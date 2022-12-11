@@ -7,27 +7,27 @@ export LANG=en_US.utf8
 #
 # checkSleep
 #
-# execute SleepProxyClient and pm-suspend if two runs after each other are positive
+# Execute SleepProxyClient and "systemctl suspend" after two successful runs.
 #
-#	Creteria:
+#	Criteria:
 #		- no user logged in (remote + local) 
-#		- no non-local active tcp connections
+#		- no non-local active TCP connections
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-#used to check for a previous successfull run
+#used to check for a previous successful run
 TMPFILE="/tmp/checkSleep"
 
 #logging tag
 TAG="checkSleep"
 
-#value will be returned. 0 if the creteria was fullfilled
+#value will be returned. 0 if the criteria was fulfilled
 RET=0
 
 # run SleepProxyClient
 function doSleep {
 	logger -t $TAG "initiating sleep"
-	pm-suspend
+	systemctl suspend
 	logger -t $TAG "awake!"
 }
 
@@ -40,7 +40,7 @@ function doCheck {
 	USERS=`who | wc -l`
 	if [ $USERS -gt 0 ]
 	then
-#		logger -t $TAG "Active users: $USERS"
+		logger -t $TAG "Active users: $USERS"
 		RESULT=1
 	fi
 
@@ -49,7 +49,7 @@ function doCheck {
 	CONNS=`netstat -tn | grep -v "127.0.0.1" | grep "ESTABLISHED" | wc -l`
 	if [ $CONNS -gt 0 ]
 	then
-#		logger -t $TAG "Active connections: $CONNS"
+		logger -t $TAG "Active connections: $CONNS"
 		RESULT=1
 	fi
 
@@ -57,7 +57,7 @@ function doCheck {
 	LOAD5MINAVG=`cat /proc/loadavg  | cut -d " " -f 2`
 	if [ `echo "$LOAD5MINAVG > 1" | bc` -gt 0 ]
 	then
-#		logger -t $TAG "System load: $LOAD5MINAVG"
+		logger -t $TAG "System load: $LOAD5MINAVG"
 		RESULT=1
 	fi
 	return $RESULT

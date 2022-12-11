@@ -4,7 +4,7 @@
 #
 # @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
 # @author    Andreas Weinlein <andreas.dev@weinlein.info>
-# @copyright Copyright (c) 2012 Andreas Weinlein
+# @copyright Copyright (c) 2012-2022 Andreas Weinlein
 #
 # SleepProxyClient is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,16 +24,16 @@ TAG="sleepproxyclient"
 SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
 
 case $1 in
-suspend|hibernate)
+pre|suspend|hibernate)
 ## RUN BEFORE SUSPEND OR HIBERNATE
 	service avahi-daemon restart
 	
-	logger -t $TAG "running SPC"
+	logger -t $TAG "running sleepproxyclient"
 	bash $SCRIPTDIR/sleepproxyclient.sh
 	logger -t $TAG "done: $?"
 
 ;;
-thaw|resume)
+post|thaw|resume)
 ## RUN AFTER RESUME AND
 ## AFTER RESUME FROM SUSPEND TO DISK
 

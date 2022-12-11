@@ -3,7 +3,7 @@
 #
 # @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
 # @author    Andreas Weinlein <andreas.dev@weinlein.info>
-# @copyright Copyright (c) 2012 Andreas Weinlein
+# @copyright Copyright (c) 2012-2022 Andreas Weinlein
 #
 # SleepProxyClient is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@
 # To use all interfaces use 'all' or leave the variable unset
 #SPC_INTERFACES="eth0"
 
-# set TTL to 2 h
-#SPC_TTL=7200
+# set lease-time to 2 h
+#SPC_LEASE_TIME=7200
 
 # enable debug mode
 #SPC_DEBUG=1
