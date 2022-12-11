@@ -3,7 +3,7 @@ Section: unknown
 Priority: optional
 Maintainer: Andreas Weinlein <andreas.dev@weinlein.info>
 Uploaders: Andreas Weinlein <andreas.dev@weinlein.info>
-Build-Depends: debhelper (>=10), python3 (>= 3.9)
+Build-Depends: debhelper (>=10), python3 (>= 3.9), dh-python
 Homepage: https://github.com/awein/SleepProxyClient
 Standards-Version: 4.0.0
 
