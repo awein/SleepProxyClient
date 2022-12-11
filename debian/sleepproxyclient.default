@@ -26,5 +26,8 @@
 # set lease-time to 2 h
 #SPC_LEASE_TIME=7200
 
+# The logfile to use
+SPC_LOGFILE="/var/log/sleepproxyclient.log"
+
 # enable debug mode
 #SPC_DEBUG=1

@@ -70,8 +70,16 @@ def main():
     """SleepProxyClient main entry point."""
 
     args = parse_arguments()
+
+    logging_config = {
+        "format": "%(asctime)s spc[%(process)d] %(levelname)s %(filename)s[%(funcName)s:%(lineno)d] %(message)s",
+        "datefmt": "%b %d %Y %H:%M:%S"
+    }
     if args.debug:
-        logging.root.setLevel(logging.DEBUG)
+        logging_config["level"] = logging.DEBUG
+    if args.logfile is not None:
+        logging_config["filename"] = args.logfile
+    logging.basicConfig(**logging_config)
 
     client = SleepProxyClient(args.lease_time)
 
@@ -354,6 +362,10 @@ def parse_arguments() -> argparse.Namespace:
         type=int,
         help="Lease time for the update in seconds. Client will be woken up after this period.",
         default=DEFAULT_LEASE_TIME,
+    )
+    parser.add_argument(
+        "--logfile",
+        help="The file to log output to.",
     )
     parser.add_argument(
         "--debug",

@@ -1,0 +1,7 @@
+/var/log/sleepproxyclient.log {
+    rotate 2
+    weekly
+    notifempty
+    missingok
+    compress
+}

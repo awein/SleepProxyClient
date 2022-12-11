@@ -35,6 +35,10 @@ if [ "$SPC_LEASE_TIME" != "" ]
 then
 	LEASE_TIME_OPT="--lease-time $SPC_LEASE_TIME"
 fi
+
+LOGFILE_OPT=""
+if [ "$SPC_LOGFILE" != "" ] ; then
+	LOGFILE_OPT="--logfile '$SPC_LOGFILE'"
 fi
 
 DEBUG_OPT=""
@@ -47,4 +51,4 @@ SCRIPTDIR=`dirname $0`
 if [ "$SPC_DEBUG" != "" ] ; then
 	set -x
 fi
-python $SCRIPTDIR/sleepproxyclient.py $IF_OPT $TTL_OPT $DEBUG_OPT
+python3 $SCRIPTDIR/sleepproxyclient.py $IF_OPT $LEASE_TIME_OPT $LOGFILE_OPT $DEBUG_OPT
