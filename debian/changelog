@@ -1,3 +1,13 @@
+sleepproxyclient (2.0) unstable; urgency=low
+
+  * Updated to python3 (Issue #16)
+  * Restructured code and improved documentation
+  * Added support for systemd-sleep
+  * Removed support for pm-utils
+  * Added logging to logfile (/var/log/sleepproxyclient.log)
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Fri, 11 Dec 2022 13:30:00 +0100
+
 sleepproxyclient (0.7.3) unstable; urgency=low
 
   * Bugfix for multiple interface handling (Issue #8)

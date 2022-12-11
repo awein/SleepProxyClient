@@ -4,7 +4,7 @@
 #
 # @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
 # @author    Andreas Weinlein <andreas.dev@weinlein.info>
-# @copyright Copyright (c) 2012 Andreas Weinlein
+# @copyright Copyright (c) 2012-2022 Andreas Weinlein
 #
 # SleepProxyClient is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ set -e
 case "$1" in
 	configure)
 		# remove the old file if present
-		test -e /etc/pm/sleep.d/00sleepproxyclient && rm /etc/pm/sleep.d/00sleepproxyclient
 		test -e /etc/pm/sleep.d/00_sleepproxyclient && rm /etc/pm/sleep.d/00_sleepproxyclient
+		test -e /usr/lib/systemd/system-sleep/00_sleepproxyclient && rm /usr/lib/systemd/system-sleep/00_sleepproxyclient
 
 		# fix executables
 		chmod +x /usr/share/sleepproxyclient/scripts/*
 		
 		# create symlink
-		test ! -e /etc/pm/sleep.d/00_sleepproxyclient && ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /etc/pm/sleep.d/00_sleepproxyclient
+		test ! -e /usr/lib/systemd/system-sleep/00_sleepproxyclient && ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /usr/lib/systemd/system-sleep/00_sleepproxyclient
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)

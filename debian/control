@@ -3,14 +3,15 @@ Section: unknown
 Priority: optional
 Maintainer: Andreas Weinlein <andreas.dev@weinlein.info>
 Uploaders: Andreas Weinlein <andreas.dev@weinlein.info>
-Build-Depends: debhelper (>= 7.0.50~), python (>= 2.4)
+Build-Depends: debhelper (>=10), python3 (>= 3.9), dh-python
 Homepage: https://github.com/awein/SleepProxyClient
-Standards-Version: 3.9.3
+Standards-Version: 4.0.0
 
 Package: sleepproxyclient
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-dnspython, python-argparse,
- python-netifaces, python-avahi, pm-utils, avahi-utils, bash, bc
+Depends: ${misc:Depends}, ${python3:Depends}, python3-dnspython,
+ python3-netifaces, python3-avahi, avahi-utils, bash, systemd,
+ bc, net-tools
 Description: mDNS Sleep Proxy Client implementation.
  sleepproxyclient is a Linux implementation for Wake On Demand.
  All announced avahi-services will be registered to all available
