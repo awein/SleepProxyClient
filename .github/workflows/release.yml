@@ -2,8 +2,9 @@ name: Build release artifacts
 on:
   workflow_dispatch:
     types: []
-  release:
-    types: [created]
+  push:
+    tags:        
+      - v*.*
 jobs:
   release:
     runs-on: ubuntu-latest
