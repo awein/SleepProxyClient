@@ -65,42 +65,6 @@ TTL_SHORT: int = 120  # 2min
 Should NOT be changed.
 """
 
-
-def main():
-    """SleepProxyClient main entry point."""
-
-    args = parse_arguments()
-
-    logging_config = {
-        "format": "%(asctime)s spc[%(process)d] %(levelname)s %(filename)s[%(funcName)s:%(lineno)d] %(message)s",
-        "datefmt": "%b %d %Y %H:%M:%S"
-    }
-    if args.debug:
-        logging_config["level"] = logging.DEBUG
-    if args.logfile is not None:
-        logging_config["filename"] = args.logfile
-    logging.basicConfig(**logging_config)
-
-    client = SleepProxyClient(args.lease_time)
-
-    # check interfaces
-    system_interfaces = netifaces.interfaces()
-
-    interfaces = args.interfaces
-    if "all" in args.interfaces:
-        interfaces = system_interfaces
-
-    logging.debug("Interfaces: %s", ", ".join(interfaces))
-
-    for interface in interfaces:
-        if interface not in system_interfaces:
-            logging.error("Invalid interface specified: %s", interface)
-        elif interface.startswith("lo"):
-            logging.debug("Skipping local interface: %s", interface)
-        else:
-            client.send_update(interface)
-
-
 @dataclass
 class InterfaceDetails:
     """Address details of a network interface."""
@@ -135,15 +99,11 @@ class InterfaceDetails:
         return f"InterfaceDetails(ip_addresses={self.ip_addresses}, hardware_address={self.hardware_address})"
 
 
+@dataclass
 class SleepProxyClient:
     """The Sleep Proxy Client."""
-    # pylint:disable=too-few-public-methods
-
 
     lease_time: int
-
-    def __init__(self, lease_time):
-        self.lease_time = lease_time
 
     def _create_update(self, interface_details: InterfaceDetails, hostname: str) -> dns.update.Update:
         """Creates and populates the DNS Update request."""
@@ -173,7 +133,7 @@ class SleepProxyClient:
             service_type = f"{service.name}.local"
             service_type_host = f"{hostname}.{service_type}"
             service_txt_records = set(service.txt_records)
-            service_txt_records.add("SPC_STATE=sleeping")
+            service_txt_records.add("spc=1")
             txt_record = " ".join(service_txt_records)
             update.add(service_type_host, TTL_LONG, dns.rdatatype.TXT, txt_record)
 
@@ -225,14 +185,18 @@ class SleepProxyClient:
         # send request to best proxy first and fall back on failure
         for proxy in sleep_proxies:
             try:
-                logging.debug("Sending update to %s", proxy)
+                logging.info("Sending update to %s", proxy)
                 response = dns.query.udp(update, proxy.ip_address, timeout=10, port=proxy.port)
-                logging.debug("Response: %s", response)
 
+                logging.debug("Response: %s", response)
                 rcode = response.rcode()
                 if rcode != dns.rcode.NOERROR:
                     logging.error("Update failed for Sleep Proxy %s. Rcode: %d. Response: %s", proxy, rcode, response)
                 else:
+                    response_option = next((option for option in response.options if option.otype == 2), None)
+                    if response_option is not None:
+                        granted_lease_time = struct.unpack("!L", response_option.data)[0]
+                        logging.info("Granted lease time is %s (Requested: %s)", granted_lease_time, self.lease_time)
                     break
             except DNSException as e:
                 logging.error("Unable to register with Sleep Proxy %s: %s", proxy, e)
@@ -245,12 +209,13 @@ class SleepProxyRecord:
     name: str
     ip_address: str
     port: int
-    properties: str
-    """See https://github.com/awein/SleepProxyClient/wiki/Sleep-Proxy-Property-Encoding."""
+    properties: str # See [https://github.com/awein/SleepProxyClient/wiki/Sleep-Proxy-Property-Encoding]
 
     @staticmethod
     def from_avahi_browse(line: str) -> Optional[SleepProxyRecord]:
         """Creates a SleepProxyRecord from the output of avahi-browse"""
+
+        # =;enp0s0;IPv4;70-35-60-63\.1\032Apple\032TV;_sleep-proxy._udp;local;Apple-TV.local;192.168.1.14;60540;
         line_array = line.rsplit(";")
         if len(line_array) < 10:
             logging.error("Failed to create Sleep Proxy Record from %s", line)
@@ -287,19 +252,22 @@ class MDNS:
     avahi_browse_base_cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate"
 
     @staticmethod
-    def discover_services(ip_addresses: [str]):
+    def discover_services(ip_addresses: [str]) -> set[Service]:
         """Discover all currently announced services for the given IPs."""
 
         logging.debug("IPs: %s", ", ".join(ip_addresses))
 
-        services = set() # set is used to avoid duplicates (e.g. IPv4/IPv6)
+        # services are announced dual-stack and need to be de-duplicated
+        services = set()
 
         cmd = f"{MDNS.avahi_browse_base_cmd} --all 2>/dev/null | grep '^=;'"
         with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
             for line in proc.stdout.readlines():
+                # =;enp0s1;IPv6;hostname;_ssh._tcp;local;hostname.local;fe80::1ce6:40ff:fec1:bca4;22;
+                # =;enp0s1;IPv4;hostname;_ssh._tcp;local;hostname.local;192.168.1.12;22;
+                # =;enp0s1;IPv4;hostname;_airplay._tcp;local;hostname.local;192.168.1.12;7000;"srcvers=670.6.2" "pk=..."
                 line_array = line.decode('utf8').rsplit(";")
 
-                # check length
                 if len(line_array) < 10:
                     proc.terminate()
                     logging.error("Discovering services failed for: %s", "', ".join(ip_addresses))
@@ -326,7 +294,7 @@ class MDNS:
         return services
 
     @staticmethod
-    def discover_sleep_proxies(interface: str) -> [SleepProxyRecord]:
+    def discover_sleep_proxies(interface: str) -> list[SleepProxyRecord]:
         """Discover all Sleep Proxy Servers available via the given interface.
 
         Returns a sorted list with the best Sleep Proxy in the front.
@@ -337,6 +305,7 @@ class MDNS:
         sleep_proxies: [SleepProxyRecord] = []
 
         cmd = f"{MDNS.avahi_browse_base_cmd} _sleep-proxy._udp 2>/dev/null | grep '^=;{interface.rsplit(':')[0]}'"
+        # =;enp0s0;IPv4;70-35-60-63\.1\032Apple\032TV;_sleep-proxy._udp;local;Apple-TV.local;192.168.1.14;60540;
         with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
             for line in proc.stdout.readlines():
                 sleep_proxy = SleepProxyRecord.from_avahi_browse(line.decode('utf8'))
@@ -377,5 +346,35 @@ def parse_arguments() -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    # call main
-    main()
+    args = parse_arguments()
+
+    logging_config = {
+        "format": "%(asctime)s spc[%(process)d] %(levelname)s %(filename)s[%(funcName)s:%(lineno)d] %(message)s",
+        "datefmt": "%b %d %Y %H:%M:%S"
+    }
+    if args.debug is not None:
+        logging_config["level"] = logging.DEBUG
+    if args.logfile is not None:
+        logging_config["filename"] = args.logfile
+    logging.basicConfig(**logging_config)
+
+    logging.debug("Arguments: %s", args)
+
+    client = SleepProxyClient(args.lease_time, preferred_proxies=args.preferred_proxies)
+
+    # check interfaces
+    system_interfaces = netifaces.interfaces()
+
+    interfaces = args.interfaces
+    if "all" in args.interfaces:
+        interfaces = system_interfaces
+
+    logging.debug("Interfaces: %s", ", ".join(interfaces))
+
+    for iface in interfaces:
+        if iface not in system_interfaces:
+            logging.error("Invalid interface specified: %s", iface)
+        elif iface.startswith("lo"):
+            logging.debug("Skipping local interface: %s", iface)
+        else:
+            client.send_update(iface)
