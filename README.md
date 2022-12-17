@@ -10,7 +10,7 @@ The Sleep Proxy Server will wake the device using Wake on LAN (WOL), as soon as 
 
 ### Requirements
 To get this running, a Sleep Proxy Server on your local network is required. If present, it will announce itself via mDNS as `_sleep-proxy._udp`. 
-Such a server is included in many Apple devices like its network products "Time Capsule" and "AirPort Express". But an Apple TV or any Mac running 10.6 or above can be turned into a sleep proxy server too. 
+Such a server is included in many Apple devices, like Apple TV or HomePod, as well as its (now outdated) network products "Time Capsule" and "AirPort Express". Any Mac running 10.6 or above can be turned into a sleep proxy server too. 
 
 ### Status
 SleepProxyClient is pretty stable and ready for everyday use.
@@ -33,8 +33,8 @@ SleepProxyClient works out of the box on Debian/Ubuntu.
 It's quite easy to install SleepProxyClient on other Linux distributions and UNIX/BSD systems too.
 
 #### Debian / Ubuntu
-Download the package from releases page and install it using `dpkg -i sleepproxyclient_<version>_all.deb`.
-Issues due to missing dependencies can be resolved using `apt --fix-broken install`.
+Download the package from [releases](https://github.com/awein/SleepProxyClient/releases) and install it using `dpkg -i sleepproxyclient_<version>_all.deb`.
+Potential issues due to missing dependencies can be resolved by running `apt --fix-broken install` afterwards.
 
 #### Other operating systems
 SleepProxyClient was tested on Linux but should work on other operating systems too.  
