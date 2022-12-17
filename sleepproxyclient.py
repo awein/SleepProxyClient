@@ -229,7 +229,8 @@ class SleepProxyRecord:
         name = line_array[6]
         ip_address = line_array[7]
         port = int(line_array[8])
-        properties = line_array[3].rsplit(" ")[0]
+        # avahi-browse output of "name" is encoded when the "--parsable" option is used
+        properties = line_array[3].replace('\\032', ' ').split(" ", 1)[0].replace('\\', '')
 
         return SleepProxyRecord(name, ip_address, port, properties, name in preferred_proxies)
 
@@ -246,7 +247,9 @@ class SleepProxyRecord:
         )
 
 class MDNS:
-    """MDNS discovery related functions."""
+    """MDNS discovery related functions.
+    Should be transformed to a module when split into multiple files
+    """
 
     @dataclass(frozen=True, eq=True)
     class Service:
