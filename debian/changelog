@@ -1,3 +1,9 @@
+sleepproxyclient (2.1) unstable; urgency=low
+
+  * Added option to specify preferred servers (Issue #20)
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 17 Dec 2022 22:35:00 +0100
+
 sleepproxyclient (2.0) unstable; urgency=low
 
   * Updated to python3 (Issue #16)
