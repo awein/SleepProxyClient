@@ -61,10 +61,15 @@ Some more parameters can be adjusted to fit your needs:
 - List of network interfaces  
 	By default, all interfaces are used. Use the related option to adjust this behavior.
 
+- List of preferred Sleep Proxy Servers  
+  By default, the Sleep Proxy Server with the best properties will be selected. The order of servers with the same properties is not defined. This option enables the specify preferred Sleep Proxy Serves that will be selected with precedence.
+  
+  A common use case for this is to prefer a wired Apple TV over a HomePod with weak WiFi coverage. Both advertise themselves with the same properties. Using this option, and specifying the Apple TV as preferred Sleep Proxy Server, adds additional reliability.
+
 - Lease time (Time to live)  
 	The lease time (or TTL) controls the life time of the mDNS announcement. The host running SleepProxyClient will be woken up be the Sleep Proxy Server after this period to allow it to renew the announcement. The default value is 2 hours.
 
-These settings can be configured via `/etc/default/sleepproxyclient` or the `--lease-time` option.
+These settings can be configured via `/etc/default/sleepproxyclient` (or arguments of `sleepproxyclient.py` when called directly).
 	
 ### What's inside
 

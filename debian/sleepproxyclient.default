@@ -23,6 +23,9 @@
 # To use all interfaces use 'all' or leave the variable unset
 #SPC_INTERFACES="eth0"
 
+# A list of Sleep Proxy Servers to prefer (separated by space)
+#SPC_PREFERRED_PROXIES="Apple-TV.local"
+
 # set lease-time to 2 h
 #SPC_LEASE_TIME=7200
 

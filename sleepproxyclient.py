@@ -104,6 +104,7 @@ class SleepProxyClient:
     """The Sleep Proxy Client."""
 
     lease_time: int
+    preferred_proxies: list[str] = field(default_factory=list)
 
     def _create_update(self, interface_details: InterfaceDetails, hostname: str) -> dns.update.Update:
         """Creates and populates the DNS Update request."""
@@ -170,7 +171,7 @@ class SleepProxyClient:
         logging.debug("Using interface details: %s", interface_details)
 
         # get all available sleep proxies
-        sleep_proxies = MDNS.discover_sleep_proxies(interface)
+        sleep_proxies = MDNS.discover_sleep_proxies(interface, preferred_proxies=self.preferred_proxies)
         if len(sleep_proxies) < 1:
             logging.warning("No sleep proxy available for interface: %s", interface)
             return
@@ -210,10 +211,14 @@ class SleepProxyRecord:
     ip_address: str
     port: int
     properties: str # See [https://github.com/awein/SleepProxyClient/wiki/Sleep-Proxy-Property-Encoding]
+    preferred: bool
 
     @staticmethod
-    def from_avahi_browse(line: str) -> Optional[SleepProxyRecord]:
+    def from_avahi_browse(line: str, preferred_proxies: Optional[list[str]] = None) -> Optional[SleepProxyRecord]:
         """Creates a SleepProxyRecord from the output of avahi-browse"""
+
+        if preferred_proxies is None:
+            preferred_proxies = []
 
         # =;enp0s0;IPv4;70-35-60-63\.1\032Apple\032TV;_sleep-proxy._udp;local;Apple-TV.local;192.168.1.14;60540;
         line_array = line.rsplit(";")
@@ -225,16 +230,20 @@ class SleepProxyRecord:
         ip_address = line_array[7]
         port = int(line_array[8])
         properties = line_array[3].rsplit(" ")[0]
-        return SleepProxyRecord(name, ip_address, port, properties)
+
+        return SleepProxyRecord(name, ip_address, port, properties, name in preferred_proxies)
 
     def __post_init__(self):
         ip_rating = 10
         if self.ip_address.startswith("169.254."):
             ip_rating = 50
-        self.sort_index = f"{self.properties}_{ip_rating}"
+        self.sort_index = f"{'0' if self.preferred else '1' }_{self.properties}_{ip_rating}"
 
     def __str__(self):
-        return f"SleepProxyRecord({self.name}, {self.ip_address}:{self.port}, properties: {self.properties})"
+        return (
+            f'SleepProxyRecord({self.name}, {self.ip_address}:{self.port}, properties: {self.properties}'
+            f'{", preferred" if self.preferred else ""})'
+        )
 
 class MDNS:
     """MDNS discovery related functions."""
@@ -294,7 +303,7 @@ class MDNS:
         return services
 
     @staticmethod
-    def discover_sleep_proxies(interface: str) -> list[SleepProxyRecord]:
+    def discover_sleep_proxies(interface: str, preferred_proxies: Optional[list[str]] = None) -> list[SleepProxyRecord]:
         """Discover all Sleep Proxy Servers available via the given interface.
 
         Returns a sorted list with the best Sleep Proxy in the front.
@@ -308,7 +317,10 @@ class MDNS:
         # =;enp0s0;IPv4;70-35-60-63\.1\032Apple\032TV;_sleep-proxy._udp;local;Apple-TV.local;192.168.1.14;60540;
         with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
             for line in proc.stdout.readlines():
-                sleep_proxy = SleepProxyRecord.from_avahi_browse(line.decode('utf8'))
+                sleep_proxy = SleepProxyRecord.from_avahi_browse(
+                    line.decode('utf8'),
+                    preferred_proxies=preferred_proxies
+                )
                 if sleep_proxy is not None:
                     sleep_proxies.append(sleep_proxy)
             proc.wait()
@@ -325,6 +337,14 @@ def parse_arguments() -> argparse.Namespace:
         nargs="+",
         help="A list of network interfaces to use, separated by space.",
         default=["all"],
+    )
+    parser.add_argument(
+        "--preferred-proxies",
+        nargs="+",
+        help="""
+             A list of Sleep Proxy Servers to prefer.
+             Sleep Proxy Servers with those host names will be preferred if discovered.
+             """,
     )
     parser.add_argument(
         "--lease-time",

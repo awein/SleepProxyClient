@@ -30,6 +30,12 @@ then
 	IF_OPT=("--interfaces" $SPC_INTERFACES)
 fi
 
+PREFERRED_PROXIES_OPT=()
+if [ "$SPC_PREFERRED_PROXIES" != "" ]
+then
+	PREFERRED_PROXIES_OPT=("--preferred-proxies" "$SPC_PREFERRED_PROXIES")
+fi
+
 LEASE_TIME_OPT=()
 if [ "$SPC_LEASE_TIME" != "" ]
 then
@@ -51,4 +57,4 @@ SCRIPTDIR=`dirname $0`
 if [ "$SPC_DEBUG" != "" ] ; then
 	set -x
 fi
-python3 $SCRIPTDIR/sleepproxyclient.py ${IF_OPT[@]} "${LEASE_TIME_OPT[@]}" "${LOGFILE_OPT[@]}" $DEBUG_OPT
+python3 $SCRIPTDIR/sleepproxyclient.py ${IF_OPT[@]} ${PREFERRED_PROXIES_OPT[@]} "${LEASE_TIME_OPT[@]}" "${LOGFILE_OPT[@]}" $DEBUG_OPT
