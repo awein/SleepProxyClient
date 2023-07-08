@@ -26,12 +26,14 @@ SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
 case $1 in
 pre|suspend|hibernate)
 ## RUN BEFORE SUSPEND OR HIBERNATE
+	# Restart avahi to ensure it is alive and usable
 	service avahi-daemon restart
-	
+	# avahi might need some additional time to fully start up
+	sleep 2
+
 	logger -t $TAG "running sleepproxyclient"
 	bash $SCRIPTDIR/sleepproxyclient.sh
 	logger -t $TAG "done: $?"
-
 ;;
 post|thaw|resume)
 ## RUN AFTER RESUME AND
@@ -40,10 +42,9 @@ post|thaw|resume)
 	if [ "$SPC_DEBUG" != "" ] ; then
 		logger -t $TAG "awake!"
 	fi
-	
+
+	# Restart avahi to ensure it is alive and usable
 	service avahi-daemon restart
 
 ;;
 esac
-
-

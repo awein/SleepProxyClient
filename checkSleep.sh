@@ -10,7 +10,7 @@ export LANG=en_US.utf8
 # Execute SleepProxyClient and "systemctl suspend" after two successful runs.
 #
 #	Criteria:
-#		- no user logged in (remote + local) 
+#		- no user logged in (remote + local)
 #		- no non-local active TCP connections
 #
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -31,7 +31,7 @@ function doSleep {
 	logger -t $TAG "awake!"
 }
 
-# check the creteria
+# check the criteria
 function doCheck {
 
 	RESULT=0
@@ -66,19 +66,19 @@ function doCheck {
 doCheck
 if [ $? -eq 0 ]
 then
-	# we only want to go to sleep if two successive doCheck runs were successfull 
-	# check whether the previous run created the file to signal success 
+	# we only want to go to sleep if two successive doCheck runs were successfull
+	# check whether the previous run created the file to signal success
 	if [ -e "$TMPFILE" ]
 	then
 		# cleanup
 		rm -f "$TMPFILE"
-		
+
 		# initiate sleep
 		doSleep
 	else
 		# mark run as positive
 		touch "$TMPFILE"
-#		logger -t $TAG "I am bored. Give me something to do or I will go to sleep in some minutes"
+#		logger -t $TAG "I am bored. Give me something to do or I will go to sleep next time"
 	fi
 else
 	rm -f "$TMPFILE"
