@@ -32,5 +32,10 @@
 # The logfile to use
 SPC_LOGFILE="/var/log/sleepproxyclient.log"
 
+# Enable waking up using the RTC Alarm Clock when the lease expires.
+# Acts as a fallback to ensure the system wakes up again even when the 
+# Sleep Proxy Servers forgets about this client.
+#SPC_RTC_WAKE="rtc0"
+
 # enable debug mode
 #SPC_DEBUG=1

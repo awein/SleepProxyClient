@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with SleepProxyClient. If not, see <http://www.gnu.org/licenses/>.
 
+. /etc/default/sleepproxyclient
 
 TAG="sleepproxyclient"
 SCRIPTDIR="/usr/share/sleepproxyclient/scripts"
@@ -33,6 +34,11 @@ pre|suspend|hibernate)
 
 	logger -t $TAG "running sleepproxyclient"
 	bash $SCRIPTDIR/sleepproxyclient.sh
+
+	if [ -e "/sys/class/rtc/${SPC_RTC_WAKE}" ] ; then
+		logger -t $TAG "Setting RTC Alarm"
+		echo `date '+%s' -d "+ ${SPC_LEASE_TIME} seconds"` > "/sys/class/rtc/${SPC_RTC_WAKE}/wakealarm"
+	fi
 	logger -t $TAG "done: $?"
 ;;
 post|thaw|resume)
@@ -46,5 +52,9 @@ post|thaw|resume)
 	# Restart avahi to ensure it is alive and usable
 	service avahi-daemon restart
 
+	if [ -e "/sys/class/rtc/${SPC_RTC_WAKE}" ] ; then
+		# Ensure RTC alarm is cleared on wake
+		echo 0 > "/sys/class/rtc/${SPC_RTC_WAKE}/wakealarm"
+	fi
 ;;
 esac
