@@ -4,7 +4,7 @@
 #
 # @license   http://www.gnu.org/licenses/gpl.html GPL Version 3
 # @author    Andreas Weinlein <andreas.dev@weinlein.info>
-# @copyright Copyright (c) 2012-2022 Andreas Weinlein
+# @copyright Copyright (c) 2012-2023 Andreas Weinlein
 #
 # SleepProxyClient is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -3,7 +3,7 @@ Upstream-Name: SleepProxyClient
 Source: http://github.com/awein/SleepProxyClient
 
 Files: *
-Copyright: Copyright 2012-2022 Andreas Weinlein <andreas.dev@weinlein.info>
+Copyright: Copyright 2012-2023 Andreas Weinlein <andreas.dev@weinlein.info>
 License: GPL-3
  This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public
