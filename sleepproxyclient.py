@@ -129,6 +129,7 @@ class SleepProxyClient:
             update.add(hostname_local, TTL_SHORT, dns_datatype, ip_address)
 
         ## add services
+
         for service in MDNS.discover_services(interface_details.ip_addresses):
 
             service_type = f"{service.name}.local"
@@ -144,6 +145,7 @@ class SleepProxyClient:
                 update.add(service_type, TTL_LONG, dns.rdatatype.PTR, service_type_host)
                 update.add(service_type_host, TTL_SHORT, dns.rdatatype.SRV, f"0 0 {service.port} {hostname_local}")
 
+
         ## add edns options
 
         # http://files.dns-sd.org/draft-sekar-dns-ul.txt
@@ -153,9 +155,11 @@ class SleepProxyClient:
         # http://tools.ietf.org/id/draft-cheshire-edns0-owner-option-00.txt
         # 4: edns owner option (MAC addr for WOL Magic packet)
         clean_hardware_address = interface_details.hardware_address.replace(":", "")
+        logging.debug("MAC Address: %s", clean_hardware_address)
         owner_option = dns.edns.GenericOption(4, codecs.decode("0000" + clean_hardware_address, 'hex_codec'))
+        logging.debug("Owner option: %s", owner_option)
 
-        update.use_edns(edns=True, ednsflags=TTL_LONG, options=[lease_time_option, owner_option])
+        update.use_edns(edns=True, payload=4096, ednsflags=TTL_LONG, options=[lease_time_option, owner_option])
         return update
 
 
