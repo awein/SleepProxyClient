@@ -155,7 +155,10 @@ class SleepProxyClient:
         clean_hardware_address = interface_details.hardware_address.replace(":", "")
         owner_option = dns.edns.GenericOption(4, codecs.decode("0000" + clean_hardware_address, 'hex_codec'))
 
-        update.use_edns(edns=True, ednsflags=TTL_LONG, options=[lease_time_option, owner_option])
+        # The maximum size of UDP messages that can be sent and received. Messages with a size larger than
+        # the interface MTU will be fragmented. This should not cause issues in most local networks.
+        payload = 4096
+        update.use_edns(edns=True, ednsflags=TTL_LONG, payload=payload, options=[lease_time_option, owner_option])
         return update
 
 
