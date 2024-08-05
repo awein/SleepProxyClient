@@ -26,12 +26,18 @@ case "$1" in
 		# remove the old file if present
 		test -e /etc/pm/sleep.d/00_sleepproxyclient && rm /etc/pm/sleep.d/00_sleepproxyclient
 		test -e /usr/lib/systemd/system-sleep/00_sleepproxyclient && rm /usr/lib/systemd/system-sleep/00_sleepproxyclient
+		test -e /lib/systemd/system-sleep/00_sleepproxyclient && rm /lib/systemd/system-sleep/00_sleepproxyclient
 
 		# fix executables
 		chmod +x /usr/share/sleepproxyclient/scripts/*
-		
-		# create symlink
-		test ! -e /usr/lib/systemd/system-sleep/00_sleepproxyclient && ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /usr/lib/systemd/system-sleep/00_sleepproxyclient
+
+		# create symlink and handle old and new directory
+		if [ -d /usr/lib/systemd/system-sleep -a ! -e /usr/lib/systemd/system-sleep/00_sleepproxyclient ]; then
+			ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /usr/lib/systemd/system-sleep/00_sleepproxyclient
+		fi
+		if [ -d /lib/systemd/system-sleep -a ! -e /lib/systemd/system-sleep/00_sleepproxyclient ]; then
+			ln -s /usr/share/sleepproxyclient/scripts/00_sleepproxyclient /lib/systemd/system-sleep/00_sleepproxyclient
+		fi
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)
