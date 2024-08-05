@@ -35,7 +35,7 @@ pre|suspend|hibernate)
 	logger -t $TAG "running sleepproxyclient"
 	bash $SCRIPTDIR/sleepproxyclient.sh
 
-	if [ -e "/sys/class/rtc/${SPC_RTC_WAKE}" ] ; then
+	if [ -n "${SPC_RTC_WAKE}" -a -e "/sys/class/rtc/${SPC_RTC_WAKE}" ] ; then
 		logger -t $TAG "Setting RTC Alarm"
 		echo `date '+%s' -d "+ ${SPC_LEASE_TIME} seconds"` > "/sys/class/rtc/${SPC_RTC_WAKE}/wakealarm"
 	fi
@@ -52,7 +52,7 @@ post|thaw|resume)
 	# Restart avahi to ensure it is alive and usable
 	service avahi-daemon restart
 
-	if [ -e "/sys/class/rtc/${SPC_RTC_WAKE}" ] ; then
+	if [ -n "${SPC_RTC_WAKE}" -a -e "/sys/class/rtc/${SPC_RTC_WAKE}" ] ; then
 		# Ensure RTC alarm is cleared on wake
 		echo 0 > "/sys/class/rtc/${SPC_RTC_WAKE}/wakealarm"
 	fi
