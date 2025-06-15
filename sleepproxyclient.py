@@ -131,8 +131,8 @@ class SleepProxyClient:
         ## add services
         for service in MDNS.discover_services(interface_details.ip_addresses):
 
-            service_type = f"{service.name}.local"
-            service_type_host = f"{hostname}.{service_type}"
+            service_type = f"{service.type}.local"
+            service_type_host = f"{service.name}.{service_type}"
             service_txt_records = set(service.txt_records)
             service_txt_records.add("spc=1")
             txt_record = " ".join(service_txt_records)
@@ -258,11 +258,12 @@ class MDNS:
     class Service:
         """A MDNS service"""
         name: str
+        type: str
         port: int
         txt_records: frozenset[str]
 
         def __str__(self):
-            return f"MDNS.Service({self.name}, port={self.port}, txt_records={self.txt_records})"
+            return f"MDNS.Service(name={self.name}, type={self.type}, port={self.port}, txt_records={self.txt_records})"
 
     avahi_browse_base_cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate"
 
@@ -291,7 +292,8 @@ class MDNS:
                 # extract service details
                 ip_address = line_array[7]
                 if ip_address in ip_addresses:
-                    service_name = line_array[4]
+                    service_name = line_array[3]
+                    service_type = line_array[4]
                     port = int(line_array[8])
                     txt_records = frozenset(
                         line_array[9]
@@ -300,7 +302,7 @@ class MDNS:
                         .replace('"', "")
                         .rsplit(";")
                     )
-                    services.add(MDNS.Service(service_name, port, txt_records))
+                    services.add(MDNS.Service(service_name, service_type, port, txt_records))
 
             # wait for cmd to terminate
             proc.wait()
