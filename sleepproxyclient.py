@@ -46,7 +46,7 @@ from dns.exception import DNSException
 import netifaces
 
 
-DEFAULT_LEASE_TIME: int = 7200 # 2h
+DEFAULT_LEASE_TIME: int = 7200  # 2h
 """The default lease time (TTL) for sleep proxy client in minutes.
 
 A Wake-On-LAN-Packet will be sent after this period. Defaults to 2 hours.
@@ -65,10 +65,12 @@ TTL_SHORT: int = 120  # 2min
 Should NOT be changed.
 """
 
+
 @dataclass
 class InterfaceDetails:
     """Address details of a network interface."""
-    ip_addresses: [str]
+
+    ip_addresses: list[str]
     hardware_address: str
 
     @staticmethod
@@ -78,18 +80,22 @@ class InterfaceDetails:
         # get IPs for given interface
         ifaddrs = netifaces.ifaddresses(interface)
 
-        ip_addresses: [str] = []
+        ip_addresses: list[str] = []
         if netifaces.AF_INET in ifaddrs:
             for ip_entry in ifaddrs[netifaces.AF_INET]:
                 ip_addresses.append(ip_entry["addr"])
 
         if netifaces.AF_INET6 in ifaddrs:
             for ip_entry in ifaddrs[netifaces.AF_INET6]:
-                ip_addresses.append(ip_entry["addr"].split("%")[0])  # ignore trailing %<iface>
+                ip_addresses.append(
+                    ip_entry["addr"].split("%")[0]
+                )  # ignore trailing %<iface>
 
         # get HW Address
         if ":" in interface:  # handle virtual interfaces
-            hardware_address = netifaces.ifaddresses(interface.rsplit(":")[0])[netifaces.AF_LINK][0]["addr"]
+            hardware_address = netifaces.ifaddresses(interface.rsplit(":")[0])[
+                netifaces.AF_LINK
+            ][0]["addr"]
         else:
             hardware_address = ifaddrs[netifaces.AF_LINK][0]["addr"]
 
@@ -106,7 +112,9 @@ class SleepProxyClient:
     lease_time: int
     preferred_proxies: list[str] = field(default_factory=list)
 
-    def _create_update(self, interface_details: InterfaceDetails, hostname: str) -> dns.update.Update:
+    def _create_update(
+        self, interface_details: InterfaceDetails, hostname: str
+    ) -> dns.update.Update:
         """Creates and populates the DNS Update request."""
         # pylint:disable=too-many-locals
 
@@ -125,7 +133,12 @@ class SleepProxyClient:
             else:
                 continue
 
-            update.add(dns.reversename.from_address(ip_address), TTL_SHORT, dns.rdatatype.PTR, hostname_local)
+            update.add(
+                dns.reversename.from_address(ip_address),
+                TTL_SHORT,
+                dns.rdatatype.PTR,
+                hostname_local,
+            )
             update.add(hostname_local, TTL_SHORT, dns_datatype, ip_address)
 
         ## add services
@@ -140,27 +153,45 @@ class SleepProxyClient:
 
             # device-info service gets a txt record only
             if service_type != "device-info._tcp.local":
-                update.add("_services._dns-sd._udp.local", TTL_LONG, dns.rdatatype.PTR, service_type)
+                update.add(
+                    "_services._dns-sd._udp.local",
+                    TTL_LONG,
+                    dns.rdatatype.PTR,
+                    service_type,
+                )
                 update.add(service_type, TTL_LONG, dns.rdatatype.PTR, service_type_host)
-                update.add(service_type_host, TTL_SHORT, dns.rdatatype.SRV, f"0 0 {service.port} {hostname_local}")
+                update.add(
+                    service_type_host,
+                    TTL_SHORT,
+                    dns.rdatatype.SRV,
+                    f"0 0 {service.port} {hostname_local}",
+                )
 
         ## add edns options
 
         # http://files.dns-sd.org/draft-sekar-dns-ul.txt
         # 2: Lease Time in seconds
-        lease_time_option = dns.edns.GenericOption(2, struct.pack("!L", self.lease_time))
+        lease_time_option = dns.edns.GenericOption(
+            2, struct.pack("!L", self.lease_time)
+        )
 
         # http://tools.ietf.org/id/draft-cheshire-edns0-owner-option-00.txt
         # 4: edns owner option (MAC addr for WOL Magic packet)
         clean_hardware_address = interface_details.hardware_address.replace(":", "")
-        owner_option = dns.edns.GenericOption(4, codecs.decode("0000" + clean_hardware_address, 'hex_codec'))
+        owner_option = dns.edns.GenericOption(
+            4, codecs.decode("0000" + clean_hardware_address, "hex_codec")
+        )
 
         # The maximum size of UDP messages that can be sent and received. Messages with a size larger than
         # the interface MTU will be fragmented. This should not cause issues in most local networks.
         payload = 4096
-        update.use_edns(edns=True, ednsflags=TTL_LONG, payload=payload, options=[lease_time_option, owner_option])
+        update.use_edns(
+            edns=True,
+            ednsflags=TTL_LONG,
+            payload=payload,
+            options=[lease_time_option, owner_option],
+        )
         return update
-
 
     def send_update(self, interface: str):
         """Sends a update request for the given interface."""
@@ -168,13 +199,17 @@ class SleepProxyClient:
 
         interface_details: InterfaceDetails = InterfaceDetails.for_interface(interface)
         if len(interface_details.ip_addresses) == 0:
-            logging.error("No IPv4 or IPv6 Addresses found for interface: %s", interface)
+            logging.error(
+                "No IPv4 or IPv6 Addresses found for interface: %s", interface
+            )
             return
 
         logging.debug("Using interface details: %s", interface_details)
 
         # get all available sleep proxies
-        sleep_proxies = MDNS.discover_sleep_proxies(interface, preferred_proxies=self.preferred_proxies)
+        sleep_proxies = MDNS.discover_sleep_proxies(
+            interface, preferred_proxies=self.preferred_proxies
+        )
         if len(sleep_proxies) < 1:
             logging.warning("No sleep proxy available for interface: %s", interface)
             return
@@ -190,17 +225,33 @@ class SleepProxyClient:
         for proxy in sleep_proxies:
             try:
                 logging.info("Sending update to %s", proxy)
-                response = dns.query.udp(update, proxy.ip_address, timeout=10, port=proxy.port)
+                response = dns.query.udp(
+                    update, proxy.ip_address, timeout=10, port=proxy.port
+                )
 
                 logging.debug("Response: %s", response)
                 rcode = response.rcode()
                 if rcode != dns.rcode.NOERROR:
-                    logging.error("Update failed for Sleep Proxy %s. Rcode: %d. Response: %s", proxy, rcode, response)
+                    logging.error(
+                        "Update failed for Sleep Proxy %s. Rcode: %d. Response: %s",
+                        proxy,
+                        rcode,
+                        response,
+                    )
                 else:
-                    response_option = next((option for option in response.options if option.otype == 2), None)
+                    response_option = next(
+                        (option for option in response.options if option.otype == 2),
+                        None,
+                    )
                     if response_option is not None:
-                        granted_lease_time = struct.unpack("!L", response_option.data)[0]
-                        logging.info("Granted lease time is %s (Requested: %s)", granted_lease_time, self.lease_time)
+                        granted_lease_time = struct.unpack("!L", response_option.data)[
+                            0
+                        ]
+                        logging.info(
+                            "Granted lease time is %s (Requested: %s)",
+                            granted_lease_time,
+                            self.lease_time,
+                        )
                     break
             except DNSException as e:
                 logging.error("Unable to register with Sleep Proxy %s: %s", proxy, e)
@@ -209,15 +260,18 @@ class SleepProxyClient:
 @dataclass(order=True)
 class SleepProxyRecord:
     """A Sleep Proxy record."""
+
     sort_index: str = field(init=False, repr=False)
     name: str
     ip_address: str
     port: int
-    properties: str # See [https://github.com/awein/SleepProxyClient/wiki/Sleep-Proxy-Property-Encoding]
+    properties: str  # See [https://github.com/awein/SleepProxyClient/wiki/Sleep-Proxy-Property-Encoding]
     preferred: bool
 
     @staticmethod
-    def from_avahi_browse(line: str, preferred_proxies: Optional[list[str]] = None) -> Optional[SleepProxyRecord]:
+    def from_avahi_browse(
+        line: str, preferred_proxies: Optional[list[str]] = None
+    ) -> Optional[SleepProxyRecord]:
         """Creates a SleepProxyRecord from the output of avahi-browse"""
 
         if preferred_proxies is None:
@@ -233,21 +287,28 @@ class SleepProxyRecord:
         ip_address = line_array[7]
         port = int(line_array[8])
         # avahi-browse output of "name" is encoded when the "--parsable" option is used
-        properties = line_array[3].replace('\\032', ' ').split(" ", 1)[0].replace('\\', '')
+        properties = (
+            line_array[3].replace("\\032", " ").split(" ", 1)[0].replace("\\", "")
+        )
 
-        return SleepProxyRecord(name, ip_address, port, properties, name in preferred_proxies)
+        return SleepProxyRecord(
+            name, ip_address, port, properties, name in preferred_proxies
+        )
 
     def __post_init__(self):
         ip_rating = 10
         if self.ip_address.startswith("169.254."):
             ip_rating = 50
-        self.sort_index = f"{'0' if self.preferred else '1' }_{self.properties}_{ip_rating}"
+        self.sort_index = (
+            f"{'0' if self.preferred else '1' }_{self.properties}_{ip_rating}"
+        )
 
     def __str__(self):
         return (
-            f'SleepProxyRecord({self.name}, {self.ip_address}:{self.port}, properties: {self.properties}'
+            f"SleepProxyRecord({self.name}, {self.ip_address}:{self.port}, properties: {self.properties}"
             f'{", preferred" if self.preferred else ""})'
         )
+
 
 class MDNS:
     """MDNS discovery related functions.
@@ -257,6 +318,7 @@ class MDNS:
     @dataclass(frozen=True, eq=True)
     class Service:
         """A MDNS service"""
+
         name: str
         type: str
         host: str
@@ -265,14 +327,16 @@ class MDNS:
 
         def __str__(self):
             return (
-                f'MDNS.Service(name={self.name}, type={self.type}, host={self.host}, port={self.port}'
-                f', txt_records={self.txt_records})'
+                f"MDNS.Service(name={self.name}, type={self.type}, host={self.host}, port={self.port}"
+                f", txt_records={self.txt_records})"
             )
 
-    avahi_browse_base_cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate"
+    avahi_browse_base_cmd = (
+        "avahi-browse --resolve --parsable --no-db-lookup --terminate"
+    )
 
     @staticmethod
-    def discover_services(ip_addresses: [str]) -> set[Service]:
+    def discover_services(ip_addresses: list[str]) -> set[Service]:
         """Discover all currently announced services for the given IPs."""
 
         logging.debug("IPs: %s", ", ".join(ip_addresses))
@@ -281,34 +345,40 @@ class MDNS:
         services = set()
 
         cmd = f"{MDNS.avahi_browse_base_cmd} --all 2>/dev/null | grep '^=;'"
-        with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+        with subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        ) as proc:
             for line in proc.stdout.readlines():
                 # =;enp0s1;IPv6;name;_ssh._tcp;local;hostname.local;fe80::1ce6:40ff:fec1:bca4;22;
                 # =;enp0s1;IPv4;name;_ssh._tcp;local;hostname.local;192.168.1.12;22;
                 # =;enp0s1;IPv4;name;_airplay._tcp;local;hostname.local;192.168.1.12;7000;"srcvers=670.6.2" "pk=..."
-                line_array = line.decode('utf8').rsplit(";")
+                line_array = line.decode("utf8").rsplit(";")
 
                 if len(line_array) < 10:
                     proc.terminate()
-                    logging.error("Discovering services failed for: %s", "', ".join(ip_addresses))
+                    logging.error(
+                        "Discovering services failed for: %s", "', ".join(ip_addresses)
+                    )
                     break
 
                 # extract service details
                 ip_address = line_array[7]
                 if ip_address in ip_addresses:
-                    services.add(MDNS.Service(
-                        name=line_array[3],
-                        type=line_array[4],
-                        host=line_array[6],
-                        port=int(line_array[8]),
-                        txt_records=frozenset(
-                            line_array[9]
-                            .replace('" "', ";")
-                            .replace("\n", "")
-                            .replace('"', "")
-                            .rsplit(";")
+                    services.add(
+                        MDNS.Service(
+                            name=line_array[3],
+                            type=line_array[4],
+                            host=line_array[6],
+                            port=int(line_array[8]),
+                            txt_records=frozenset(
+                                line_array[9]
+                                .replace('" "', ";")
+                                .replace("\n", "")
+                                .replace('"', "")
+                                .rsplit(";")
+                            ),
                         )
-                    ))
+                    )
 
             # wait for cmd to terminate
             proc.wait()
@@ -317,7 +387,9 @@ class MDNS:
         return services
 
     @staticmethod
-    def discover_sleep_proxies(interface: str, preferred_proxies: Optional[list[str]] = None) -> list[SleepProxyRecord]:
+    def discover_sleep_proxies(
+        interface: str, preferred_proxies: Optional[list[str]] = None
+    ) -> list[SleepProxyRecord]:
         """Discover all Sleep Proxy Servers available via the given interface.
 
         Returns a sorted list with the best Sleep Proxy in the front.
@@ -325,15 +397,16 @@ class MDNS:
 
         logging.debug("Interface: %s", interface)
 
-        sleep_proxies: [SleepProxyRecord] = []
+        sleep_proxies: list[SleepProxyRecord] = []
 
         cmd = f"{MDNS.avahi_browse_base_cmd} _sleep-proxy._udp 2>/dev/null | grep '^=;{interface.rsplit(':')[0]}'"
         # =;enp0s0;IPv4;70-35-60-63\.1\032Apple\032TV;_sleep-proxy._udp;local;Apple-TV.local;192.168.1.14;60540;
-        with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
+        with subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        ) as proc:
             for line in proc.stdout.readlines():
                 sleep_proxy = SleepProxyRecord.from_avahi_browse(
-                    line.decode('utf8'),
-                    preferred_proxies=preferred_proxies
+                    line.decode("utf8"), preferred_proxies=preferred_proxies
                 )
                 if sleep_proxy is not None:
                     sleep_proxies.append(sleep_proxy)
@@ -384,7 +457,7 @@ if __name__ == "__main__":
 
     logging_config = {
         "format": "%(asctime)s spc[%(process)d] %(levelname)s %(filename)s[%(funcName)s:%(lineno)d] %(message)s",
-        "datefmt": "%b %d %Y %H:%M:%S"
+        "datefmt": "%b %d %Y %H:%M:%S",
     }
     if args.debug is not None:
         logging_config["level"] = logging.DEBUG
