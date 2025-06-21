@@ -1,3 +1,9 @@
+sleepproxyclient (2.4) unstable; urgency=low
+
+  * Announce service name instead of hostname (Issue #26)
+
+ -- Andreas Weinlein <andreas.dev@weinlein.info>  Sat, 21 Jun 2025 17:03:26 +0200
+
 sleepproxyclient (2.3) unstable; urgency=low
 
   * Support larger SPS registration messages (Issue #21)
