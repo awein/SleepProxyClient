@@ -131,8 +131,8 @@ class SleepProxyClient:
         ## add services
         for service in MDNS.discover_services(interface_details.ip_addresses):
 
-            service_type = f"{service.name}.local"
-            service_type_host = f"{hostname}.{service_type}"
+            service_type = f"{service.type}.local"
+            service_type_host = f"{service.name}.{service_type}"
             service_txt_records = set(service.txt_records)
             service_txt_records.add("spc=1")
             txt_record = " ".join(service_txt_records)
@@ -258,11 +258,16 @@ class MDNS:
     class Service:
         """A MDNS service"""
         name: str
+        type: str
+        host: str
         port: int
         txt_records: frozenset[str]
 
         def __str__(self):
-            return f"MDNS.Service({self.name}, port={self.port}, txt_records={self.txt_records})"
+            return (
+                f'MDNS.Service(name={self.name}, type={self.type}, host={self.host}, port={self.port}'
+                f', txt_records={self.txt_records})'
+            )
 
     avahi_browse_base_cmd = "avahi-browse --resolve --parsable --no-db-lookup --terminate"
 
@@ -278,9 +283,9 @@ class MDNS:
         cmd = f"{MDNS.avahi_browse_base_cmd} --all 2>/dev/null | grep '^=;'"
         with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as proc:
             for line in proc.stdout.readlines():
-                # =;enp0s1;IPv6;hostname;_ssh._tcp;local;hostname.local;fe80::1ce6:40ff:fec1:bca4;22;
-                # =;enp0s1;IPv4;hostname;_ssh._tcp;local;hostname.local;192.168.1.12;22;
-                # =;enp0s1;IPv4;hostname;_airplay._tcp;local;hostname.local;192.168.1.12;7000;"srcvers=670.6.2" "pk=..."
+                # =;enp0s1;IPv6;name;_ssh._tcp;local;hostname.local;fe80::1ce6:40ff:fec1:bca4;22;
+                # =;enp0s1;IPv4;name;_ssh._tcp;local;hostname.local;192.168.1.12;22;
+                # =;enp0s1;IPv4;name;_airplay._tcp;local;hostname.local;192.168.1.12;7000;"srcvers=670.6.2" "pk=..."
                 line_array = line.decode('utf8').rsplit(";")
 
                 if len(line_array) < 10:
@@ -291,16 +296,19 @@ class MDNS:
                 # extract service details
                 ip_address = line_array[7]
                 if ip_address in ip_addresses:
-                    service_name = line_array[4]
-                    port = int(line_array[8])
-                    txt_records = frozenset(
-                        line_array[9]
-                        .replace('" "', ";")
-                        .replace("\n", "")
-                        .replace('"', "")
-                        .rsplit(";")
-                    )
-                    services.add(MDNS.Service(service_name, port, txt_records))
+                    services.add(MDNS.Service(
+                        name=line_array[3],
+                        type=line_array[4],
+                        host=line_array[6],
+                        port=int(line_array[8]),
+                        txt_records=frozenset(
+                            line_array[9]
+                            .replace('" "', ";")
+                            .replace("\n", "")
+                            .replace('"', "")
+                            .rsplit(";")
+                        )
+                    ))
 
             # wait for cmd to terminate
             proc.wait()
